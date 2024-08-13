@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/core/store"
@@ -22,6 +23,16 @@ type (
 		authority string
 	}
 )
+
+func (k Keeper) BaseFee(ctx context.Context, request *types.QueryBaseFeeRequest) (*types.QueryBaseFeeResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (k Keeper) BlockGas(ctx context.Context, request *types.QueryBlockGasRequest) (*types.QueryBlockGasResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
 
 func NewKeeper(
 	cdc codec.BinaryCodec,

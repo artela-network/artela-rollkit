@@ -1,33 +1,40 @@
 package keeper
 
 import (
-	"context"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
+	cosmos "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/artela-network/artela-rollkit/x/fee/types"
 )
 
-// GetParams get all parameters as types.Params
-func (k Keeper) GetParams(ctx context.Context) (params types.Params) {
+// GetParams returns the total set of fee market parameters.
+func (k Keeper) GetParams(ctx cosmos.Context) (params types.Params) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := store.Get(types.ParamsKey)
-	if bz == nil {
-		return params
+	if len(bz) == 0 {
+		var p types.Params
+		k.ss.GetParamSetIfExists(ctx, &p)
+		return p
 	}
 
 	k.cdc.MustUnmarshal(bz, &params)
 	return params
 }
 
-// SetParams set the params
-func (k Keeper) SetParams(ctx context.Context, params types.Params) error {
+// SetParams sets the fee market params in a single key
+func (k Keeper) SetParams(ctx cosmos.Context, params types.Params) error {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz, err := k.cdc.Marshal(&params)
 	if err != nil {
 		return err
 	}
+
 	store.Set(types.ParamsKey, bz)
+	k.Logger().Debug("setState: SetBlockGasWanted",
+		"key", string(types.ParamsKey),
+		"params", fmt.Sprintf("%+v", params))
 
 	return nil
 }

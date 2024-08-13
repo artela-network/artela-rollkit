@@ -1,11 +1,18 @@
 package keeper
 
 import (
+	"context"
+
 	"github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 type msgServer struct {
 	Keeper
+}
+
+func (k msgServer) EthereumTx(ctx context.Context, tx *types.MsgEthereumTx) (*types.MsgEthereumTxResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 // NewMsgServerImpl returns an implementation of the MsgServer interface

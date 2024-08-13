@@ -213,6 +213,7 @@ func New(
 				// This needs to be removed after IBC supports App Wiring.
 				app.GetIBCKeeper,
 				app.GetCapabilityScopedKeeper,
+				app.GetSubspace,
 				// Supply the logger
 				logger,
 

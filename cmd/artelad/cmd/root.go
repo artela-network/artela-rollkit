@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"artela/app"
+	"github.com/artela-network/artela-rollkit/app"
 )
 
 // NewRootCmd creates a new root command for artelad. It is called once in the main function.

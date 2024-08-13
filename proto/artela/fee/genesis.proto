@@ -1,0 +1,17 @@
+syntax = "proto3";
+package artela.fee;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "github.com/artela-network/artela-rollkit/fee/params.proto";
+
+option go_package = "github.com/artela-network/artela-rollkit/x/fee/types";
+
+// GenesisState defines the fee module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the fee module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // block_gas is the amount of gas wanted on the last block before the upgrade.
+  // Zero by default.
+  uint64 block_gas = 2;
+}

@@ -75,9 +75,11 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
+	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
+	feemodulekeeper "github.com/artela-network/artela-rollkit/x/fee/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	"artela/docs"
+	"github.com/artela-network/artela-rollkit/docs"
 )
 
 const (
@@ -139,6 +141,8 @@ type App struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
+	EvmKeeper evmmodulekeeper.Keeper
+	FeeKeeper feemodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// simulation manager
@@ -277,6 +281,8 @@ func New(
 		&app.NFTKeeper,
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
+		&app.EvmKeeper,
+		&app.FeeKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)

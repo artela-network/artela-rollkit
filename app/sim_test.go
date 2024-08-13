@@ -31,7 +31,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
-	"artela/app"
+	"github.com/artela-network/artela-rollkit/app"
 )
 
 const (

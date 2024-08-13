@@ -23,7 +23,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"artela/app"
+	"github.com/artela-network/artela-rollkit/app"
+
+	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
+	rollconf "github.com/rollkit/rollkit/config"
 )
 
 func initRootCmd(
@@ -39,7 +42,17 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommandsWithStartCmdOptions(
+		rootCmd,
+		app.DefaultNodeHome,
+		newApp, appExport,
+		server.StartCmdOptions{
+			AddFlags: func(cmd *cobra.Command) {
+				rollconf.AddFlags(cmd)
+				addModuleInitFlags(cmd)
+			},
+			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
+		})
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(

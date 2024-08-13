@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	"github.com/stretchr/testify/require"
 
-	"artela/app"
+	"github.com/artela-network/artela-rollkit/app"
 )
 
 type (

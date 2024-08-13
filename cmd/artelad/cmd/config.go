@@ -5,7 +5,7 @@ import (
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"artela/app"
+	"github.com/artela-network/artela-rollkit/app"
 )
 
 func initSDKConfig() {

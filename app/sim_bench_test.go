@@ -14,7 +14,7 @@ import (
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
 	"github.com/stretchr/testify/require"
 
-	"artela/app"
+	"github.com/artela-network/artela-rollkit/app"
 )
 
 // Profile with:

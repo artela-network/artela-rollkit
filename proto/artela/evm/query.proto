@@ -5,7 +5,7 @@ import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "github.com/artela-network/artela-rollkit/evm/params.proto";
+import "artela/evm/params.proto";
 
 option go_package = "github.com/artela-network/artela-rollkit/x/evm/types";
 
@@ -13,7 +13,7 @@ option go_package = "github.com/artela-network/artela-rollkit/x/evm/types";
 service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/github.com/artela-network/artela-rollkit/evm/params";
+    option (google.api.http).get = "/artela/evm/params";
   }
 }
 

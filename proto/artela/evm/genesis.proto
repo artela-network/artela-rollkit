@@ -3,7 +3,7 @@ package artela.evm;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
-import "github.com/artela-network/artela-rollkit/evm/params.proto";
+import "artela/evm/params.proto";
 
 option go_package = "github.com/artela-network/artela-rollkit/x/evm/types";
 

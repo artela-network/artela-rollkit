@@ -8,7 +8,7 @@ option go_package = "github.com/artela-network/artela-rollkit/x/fee/types";
 
 // Params defines the parameters for the module.
 message Params {
-  option (amino.name) = "github.com/artela-network/artela-rollkit/x/fee/Params";
+  option (amino.name) = "artela/x/fee/Params";
   option (gogoproto.equal) = true;
 
   // no_base_fee forces the EIP-1559 base fee to 0 (needed for 0 price calls)

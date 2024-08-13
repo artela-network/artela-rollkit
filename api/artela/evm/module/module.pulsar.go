@@ -437,7 +437,7 @@ func (x *fastReflection_Module) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: github.com/artela-network/artela-rollkit/evm/module/module.proto
+// source: artela/evm/module/module.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.

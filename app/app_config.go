@@ -3,15 +3,11 @@ package app
 import (
 	"time"
 
-	wordlemodulev1 "github.com/artela-network/artela-rollkit/api/github.com/artela-network/artela-rollkit/wordle/module"
-	_ "github.com/artela-network/artela-rollkit/x/wordle/module" // import for side-effects
-	wordlemoduletypes "github.com/artela-network/artela-rollkit/x/wordle/types"
-
-	evmmodulev1 "github.com/artela-network/artela-rollkit/api/github.com/artela-network/artela-rollkit/evm/module"
+	evmmodulev1 "github.com/artela-network/artela-rollkit/api/artela/evm/module"
 	_ "github.com/artela-network/artela-rollkit/x/evm/module" // import for side-effects
 	evmmoduletypes "github.com/artela-network/artela-rollkit/x/evm/types"
 
-	feemodulev1 "github.com/artela-network/artela-rollkit/api/github.com/artela-network/artela-rollkit/fee/module"
+	feemodulev1 "github.com/artela-network/artela-rollkit/api/artela/fee/module"
 	_ "github.com/artela-network/artela-rollkit/x/fee/module" // import for side-effects
 	feemoduletypes "github.com/artela-network/artela-rollkit/x/fee/types"
 
@@ -101,7 +97,6 @@ var (
 		consensustypes.ModuleName,
 		circuittypes.ModuleName,
 		// chain modules
-		wordlemoduletypes.ModuleName,
 		evmmoduletypes.ModuleName,
 		feemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
@@ -128,7 +123,6 @@ var (
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		// chain modules
-		wordlemoduletypes.ModuleName,
 		evmmoduletypes.ModuleName,
 		feemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -149,7 +143,6 @@ var (
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		// chain modules
-		wordlemoduletypes.ModuleName,
 		evmmoduletypes.ModuleName,
 		feemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
@@ -172,7 +165,6 @@ var (
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: ibcfeetypes.ModuleName},
 		{Account: icatypes.ModuleName},
-		{Account: wordlemoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -307,10 +299,6 @@ var (
 			{
 				Name:   circuittypes.ModuleName,
 				Config: appconfig.WrapAny(&circuitmodulev1.Module{}),
-			},
-			{
-				Name:   wordlemoduletypes.ModuleName,
-				Config: appconfig.WrapAny(&wordlemodulev1.Module{}),
 			},
 			{
 				Name:   evmmoduletypes.ModuleName,

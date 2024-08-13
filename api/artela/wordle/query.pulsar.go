@@ -812,7 +812,7 @@ func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods 
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: github.com/artela-network/artela-rollkit/wordle/query.proto
+// source: artela/wordle/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.

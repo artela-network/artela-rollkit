@@ -8,7 +8,7 @@ option go_package = "github.com/artela-network/artela-rollkit/x/evm/types";
 
 // Params defines the parameters for the module.
 message Params {
-  option (amino.name) = "github.com/artela-network/artela-rollkit/x/evm/Params";
+  option (amino.name) = "artela/x/evm/Params";
   option (gogoproto.equal) = true;
 
   

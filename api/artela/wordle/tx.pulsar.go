@@ -876,7 +876,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) ProtoMethods() *protoiface.Meth
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: github.com/artela-network/artela-rollkit/wordle/tx.proto
+// source: artela/wordle/tx.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: github.com/artela-network/artela-rollkit/evm/query.proto
+// source: artela/evm/query.proto
 
 package evm
 
@@ -107,5 +107,5 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "github.com/artela-network/artela-rollkit/evm/query.proto",
+	Metadata: "artela/evm/query.proto",
 }

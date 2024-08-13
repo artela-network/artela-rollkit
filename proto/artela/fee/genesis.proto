@@ -3,7 +3,7 @@ package artela.fee;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
-import "github.com/artela-network/artela-rollkit/fee/params.proto";
+import "artela/fee/params.proto";
 
 option go_package = "github.com/artela-network/artela-rollkit/x/fee/types";
 

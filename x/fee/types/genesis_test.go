@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/artela-network/artela-rollkit/x/fee/types"
+	"artela/x/fee/types"
 
 	"github.com/stretchr/testify/require"
 )

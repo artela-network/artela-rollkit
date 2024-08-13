@@ -453,7 +453,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: github.com/artela-network/artela-rollkit/evm/genesis.proto
+// source: artela/evm/genesis.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.

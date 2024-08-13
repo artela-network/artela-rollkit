@@ -3,7 +3,7 @@ package evm
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	modulev1 "github.com/artela-network/artela-rollkit/api/github.com/artela-network/artela-rollkit/evm"
+	modulev1 "github.com/artela-network/artela-rollkit/api/artela/evm"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

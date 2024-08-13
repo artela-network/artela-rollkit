@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: github.com/artela-network/artela-rollkit/fee/tx.proto
+// source: artela/fee/tx.proto
 
 package fee
 
@@ -109,5 +109,5 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "github.com/artela-network/artela-rollkit/fee/tx.proto",
+	Metadata: "artela/fee/tx.proto",
 }

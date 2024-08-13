@@ -875,7 +875,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) ProtoMethods() *protoiface.Meth
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: github.com/artela-network/artela-rollkit/evm/tx.proto
+// source: artela/evm/tx.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.

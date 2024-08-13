@@ -454,7 +454,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: github.com/artela-network/artela-rollkit/wordle/genesis.proto
+// source: artela/wordle/genesis.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.

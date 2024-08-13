@@ -20,7 +20,7 @@ import (
 
 	// this line is used by starport scaffolding # 1
 
-	modulev1 "github.com/artela-network/artela-rollkit/api/github.com/artela-network/artela-rollkit/fee/module"
+	modulev1 "github.com/artela-network/artela-rollkit/api/artela/fee/module"
 	"github.com/artela-network/artela-rollkit/x/fee/keeper"
 	"github.com/artela-network/artela-rollkit/x/fee/types"
 )

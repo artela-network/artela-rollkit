@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: github.com/artela-network/artela-rollkit/wordle/tx.proto
+// source: artela/wordle/tx.proto
 
 package wordle
 
@@ -110,5 +110,5 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "github.com/artela-network/artela-rollkit/wordle/tx.proto",
+	Metadata: "artela/wordle/tx.proto",
 }

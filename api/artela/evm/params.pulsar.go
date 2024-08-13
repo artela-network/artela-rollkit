@@ -14,13 +14,71 @@ import (
 	sync "sync"
 )
 
+var _ protoreflect.List = (*_Params_4_list)(nil)
+
+type _Params_4_list struct {
+	list *[]int64
+}
+
+func (x *_Params_4_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_Params_4_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfInt64((*x.list)[i])
+}
+
+func (x *_Params_4_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.Int()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_Params_4_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.Int()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_Params_4_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message Params at list field ExtraEips as it is not of Message kind"))
+}
+
+func (x *_Params_4_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_Params_4_list) NewElement() protoreflect.Value {
+	v := int64(0)
+	return protoreflect.ValueOfInt64(v)
+}
+
+func (x *_Params_4_list) IsValid() bool {
+	return x.list != nil
+}
+
 var (
-	md_Params protoreflect.MessageDescriptor
+	md_Params                       protoreflect.MessageDescriptor
+	fd_Params_evm_denom             protoreflect.FieldDescriptor
+	fd_Params_enable_create         protoreflect.FieldDescriptor
+	fd_Params_enable_call           protoreflect.FieldDescriptor
+	fd_Params_extra_eips            protoreflect.FieldDescriptor
+	fd_Params_chain_config          protoreflect.FieldDescriptor
+	fd_Params_allow_unprotected_txs protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_artela_evm_params_proto_init()
 	md_Params = File_artela_evm_params_proto.Messages().ByName("Params")
+	fd_Params_evm_denom = md_Params.Fields().ByName("evm_denom")
+	fd_Params_enable_create = md_Params.Fields().ByName("enable_create")
+	fd_Params_enable_call = md_Params.Fields().ByName("enable_call")
+	fd_Params_extra_eips = md_Params.Fields().ByName("extra_eips")
+	fd_Params_chain_config = md_Params.Fields().ByName("chain_config")
+	fd_Params_allow_unprotected_txs = md_Params.Fields().ByName("allow_unprotected_txs")
 }
 
 var _ protoreflect.Message = (*fastReflection_Params)(nil)
@@ -88,6 +146,42 @@ func (x *fastReflection_Params) Interface() protoreflect.ProtoMessage {
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.EvmDenom != "" {
+		value := protoreflect.ValueOfString(x.EvmDenom)
+		if !f(fd_Params_evm_denom, value) {
+			return
+		}
+	}
+	if x.EnableCreate != false {
+		value := protoreflect.ValueOfBool(x.EnableCreate)
+		if !f(fd_Params_enable_create, value) {
+			return
+		}
+	}
+	if x.EnableCall != false {
+		value := protoreflect.ValueOfBool(x.EnableCall)
+		if !f(fd_Params_enable_call, value) {
+			return
+		}
+	}
+	if len(x.ExtraEips) != 0 {
+		value := protoreflect.ValueOfList(&_Params_4_list{list: &x.ExtraEips})
+		if !f(fd_Params_extra_eips, value) {
+			return
+		}
+	}
+	if x.ChainConfig != nil {
+		value := protoreflect.ValueOfMessage(x.ChainConfig.ProtoReflect())
+		if !f(fd_Params_chain_config, value) {
+			return
+		}
+	}
+	if x.AllowUnprotectedTxs != false {
+		value := protoreflect.ValueOfBool(x.AllowUnprotectedTxs)
+		if !f(fd_Params_allow_unprotected_txs, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -103,6 +197,18 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
+	case "artela.evm.Params.evm_denom":
+		return x.EvmDenom != ""
+	case "artela.evm.Params.enable_create":
+		return x.EnableCreate != false
+	case "artela.evm.Params.enable_call":
+		return x.EnableCall != false
+	case "artela.evm.Params.extra_eips":
+		return len(x.ExtraEips) != 0
+	case "artela.evm.Params.chain_config":
+		return x.ChainConfig != nil
+	case "artela.evm.Params.allow_unprotected_txs":
+		return x.AllowUnprotectedTxs != false
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: artela.evm.Params"))
@@ -119,6 +225,18 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
+	case "artela.evm.Params.evm_denom":
+		x.EvmDenom = ""
+	case "artela.evm.Params.enable_create":
+		x.EnableCreate = false
+	case "artela.evm.Params.enable_call":
+		x.EnableCall = false
+	case "artela.evm.Params.extra_eips":
+		x.ExtraEips = nil
+	case "artela.evm.Params.chain_config":
+		x.ChainConfig = nil
+	case "artela.evm.Params.allow_unprotected_txs":
+		x.AllowUnprotectedTxs = false
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: artela.evm.Params"))
@@ -135,6 +253,27 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
+	case "artela.evm.Params.evm_denom":
+		value := x.EvmDenom
+		return protoreflect.ValueOfString(value)
+	case "artela.evm.Params.enable_create":
+		value := x.EnableCreate
+		return protoreflect.ValueOfBool(value)
+	case "artela.evm.Params.enable_call":
+		value := x.EnableCall
+		return protoreflect.ValueOfBool(value)
+	case "artela.evm.Params.extra_eips":
+		if len(x.ExtraEips) == 0 {
+			return protoreflect.ValueOfList(&_Params_4_list{})
+		}
+		listValue := &_Params_4_list{list: &x.ExtraEips}
+		return protoreflect.ValueOfList(listValue)
+	case "artela.evm.Params.chain_config":
+		value := x.ChainConfig
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	case "artela.evm.Params.allow_unprotected_txs":
+		value := x.AllowUnprotectedTxs
+		return protoreflect.ValueOfBool(value)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: artela.evm.Params"))
@@ -155,6 +294,20 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
+	case "artela.evm.Params.evm_denom":
+		x.EvmDenom = value.Interface().(string)
+	case "artela.evm.Params.enable_create":
+		x.EnableCreate = value.Bool()
+	case "artela.evm.Params.enable_call":
+		x.EnableCall = value.Bool()
+	case "artela.evm.Params.extra_eips":
+		lv := value.List()
+		clv := lv.(*_Params_4_list)
+		x.ExtraEips = *clv.list
+	case "artela.evm.Params.chain_config":
+		x.ChainConfig = value.Message().Interface().(*ChainConfig)
+	case "artela.evm.Params.allow_unprotected_txs":
+		x.AllowUnprotectedTxs = value.Bool()
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: artela.evm.Params"))
@@ -175,6 +328,25 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "artela.evm.Params.extra_eips":
+		if x.ExtraEips == nil {
+			x.ExtraEips = []int64{}
+		}
+		value := &_Params_4_list{list: &x.ExtraEips}
+		return protoreflect.ValueOfList(value)
+	case "artela.evm.Params.chain_config":
+		if x.ChainConfig == nil {
+			x.ChainConfig = new(ChainConfig)
+		}
+		return protoreflect.ValueOfMessage(x.ChainConfig.ProtoReflect())
+	case "artela.evm.Params.evm_denom":
+		panic(fmt.Errorf("field evm_denom of message artela.evm.Params is not mutable"))
+	case "artela.evm.Params.enable_create":
+		panic(fmt.Errorf("field enable_create of message artela.evm.Params is not mutable"))
+	case "artela.evm.Params.enable_call":
+		panic(fmt.Errorf("field enable_call of message artela.evm.Params is not mutable"))
+	case "artela.evm.Params.allow_unprotected_txs":
+		panic(fmt.Errorf("field allow_unprotected_txs of message artela.evm.Params is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: artela.evm.Params"))
@@ -188,6 +360,20 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "artela.evm.Params.evm_denom":
+		return protoreflect.ValueOfString("")
+	case "artela.evm.Params.enable_create":
+		return protoreflect.ValueOfBool(false)
+	case "artela.evm.Params.enable_call":
+		return protoreflect.ValueOfBool(false)
+	case "artela.evm.Params.extra_eips":
+		list := []int64{}
+		return protoreflect.ValueOfList(&_Params_4_list{list: &list})
+	case "artela.evm.Params.chain_config":
+		m := new(ChainConfig)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	case "artela.evm.Params.allow_unprotected_txs":
+		return protoreflect.ValueOfBool(false)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: artela.evm.Params"))
@@ -257,6 +443,30 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
+		l = len(x.EvmDenom)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.EnableCreate {
+			n += 2
+		}
+		if x.EnableCall {
+			n += 2
+		}
+		if len(x.ExtraEips) > 0 {
+			l = 0
+			for _, e := range x.ExtraEips {
+				l += runtime.Sov(uint64(e))
+			}
+			n += 1 + runtime.Sov(uint64(l)) + l
+		}
+		if x.ChainConfig != nil {
+			l = options.Size(x.ChainConfig)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.AllowUnprotectedTxs {
+			n += 2
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -285,6 +495,78 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.AllowUnprotectedTxs {
+			i--
+			if x.AllowUnprotectedTxs {
+				dAtA[i] = 1
+			} else {
+				dAtA[i] = 0
+			}
+			i--
+			dAtA[i] = 0x30
+		}
+		if x.ChainConfig != nil {
+			encoded, err := options.Marshal(x.ChainConfig)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x2a
+		}
+		if len(x.ExtraEips) > 0 {
+			var pksize2 int
+			for _, num := range x.ExtraEips {
+				pksize2 += runtime.Sov(uint64(num))
+			}
+			i -= pksize2
+			j1 := i
+			for _, num1 := range x.ExtraEips {
+				num := uint64(num1)
+				for num >= 1<<7 {
+					dAtA[j1] = uint8(uint64(num)&0x7f | 0x80)
+					num >>= 7
+					j1++
+				}
+				dAtA[j1] = uint8(num)
+				j1++
+			}
+			i = runtime.EncodeVarint(dAtA, i, uint64(pksize2))
+			i--
+			dAtA[i] = 0x22
+		}
+		if x.EnableCall {
+			i--
+			if x.EnableCall {
+				dAtA[i] = 1
+			} else {
+				dAtA[i] = 0
+			}
+			i--
+			dAtA[i] = 0x18
+		}
+		if x.EnableCreate {
+			i--
+			if x.EnableCreate {
+				dAtA[i] = 1
+			} else {
+				dAtA[i] = 0
+			}
+			i--
+			dAtA[i] = 0x10
+		}
+		if len(x.EvmDenom) > 0 {
+			i -= len(x.EvmDenom)
+			copy(dAtA[i:], x.EvmDenom)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.EvmDenom)))
+			i--
+			dAtA[i] = 0xa
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -335,6 +617,210 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: Params: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field EvmDenom", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.EvmDenom = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field EnableCreate", wireType)
+				}
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				x.EnableCreate = bool(v != 0)
+			case 3:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field EnableCall", wireType)
+				}
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				x.EnableCall = bool(v != 0)
+			case 4:
+				if wireType == 0 {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					x.ExtraEips = append(x.ExtraEips, v)
+				} else if wireType == 2 {
+					var packedLen int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+						}
+						if iNdEx >= l {
+							return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						packedLen |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					if packedLen < 0 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+					}
+					postIndex := iNdEx + packedLen
+					if postIndex < 0 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+					}
+					if postIndex > l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					var elementCount int
+					var count int
+					for _, integer := range dAtA[iNdEx:postIndex] {
+						if integer < 128 {
+							count++
+						}
+					}
+					elementCount = count
+					if elementCount != 0 && len(x.ExtraEips) == 0 {
+						x.ExtraEips = make([]int64, 0, elementCount)
+					}
+					for iNdEx < postIndex {
+						var v int64
+						for shift := uint(0); ; shift += 7 {
+							if shift >= 64 {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+							}
+							if iNdEx >= l {
+								return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+							}
+							b := dAtA[iNdEx]
+							iNdEx++
+							v |= int64(b&0x7F) << shift
+							if b < 0x80 {
+								break
+							}
+						}
+						x.ExtraEips = append(x.ExtraEips, v)
+					}
+				} else {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ExtraEips", wireType)
+				}
+			case 5:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ChainConfig", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.ChainConfig == nil {
+					x.ChainConfig = &ChainConfig{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.ChainConfig); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 6:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field AllowUnprotectedTxs", wireType)
+				}
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				x.AllowUnprotectedTxs = bool(v != 0)
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -388,6 +874,21 @@ type Params struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+
+	// evm_denom represents the token denomination used to run the EVM state
+	// transitions.
+	EvmDenom string `protobuf:"bytes,1,opt,name=evm_denom,json=evmDenom,proto3" json:"evm_denom,omitempty"`
+	// enable_create toggles state transitions that use the vm.Create function
+	EnableCreate bool `protobuf:"varint,2,opt,name=enable_create,json=enableCreate,proto3" json:"enable_create,omitempty"`
+	// enable_call toggles state transitions that use the vm.Call function
+	EnableCall bool `protobuf:"varint,3,opt,name=enable_call,json=enableCall,proto3" json:"enable_call,omitempty"`
+	// extra_eips defines the additional EIPs for the vm.Config
+	ExtraEips []int64 `protobuf:"varint,4,rep,packed,name=extra_eips,json=extraEips,proto3" json:"extra_eips,omitempty"`
+	// chain_config defines the EVM chain configuration parameters
+	ChainConfig *ChainConfig `protobuf:"bytes,5,opt,name=chain_config,json=chainConfig,proto3" json:"chain_config,omitempty"`
+	// allow_unprotected_txs defines if replay-protected (i.e non EIP155
+	// signed) transactions can be executed on the state machine.
+	AllowUnprotectedTxs bool `protobuf:"varint,6,opt,name=allow_unprotected_txs,json=allowUnprotectedTxs,proto3" json:"allow_unprotected_txs,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -410,6 +911,48 @@ func (*Params) Descriptor() ([]byte, []int) {
 	return file_artela_evm_params_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Params) GetEvmDenom() string {
+	if x != nil {
+		return x.EvmDenom
+	}
+	return ""
+}
+
+func (x *Params) GetEnableCreate() bool {
+	if x != nil {
+		return x.EnableCreate
+	}
+	return false
+}
+
+func (x *Params) GetEnableCall() bool {
+	if x != nil {
+		return x.EnableCall
+	}
+	return false
+}
+
+func (x *Params) GetExtraEips() []int64 {
+	if x != nil {
+		return x.ExtraEips
+	}
+	return nil
+}
+
+func (x *Params) GetChainConfig() *ChainConfig {
+	if x != nil {
+		return x.ChainConfig
+	}
+	return nil
+}
+
+func (x *Params) GetAllowUnprotectedTxs() bool {
+	if x != nil {
+		return x.AllowUnprotectedTxs
+	}
+	return false
+}
+
 var File_artela_evm_params_proto protoreflect.FileDescriptor
 
 var file_artela_evm_params_proto_rawDesc = []byte{
@@ -417,19 +960,44 @@ var file_artela_evm_params_proto_rawDesc = []byte{
 	0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0a, 0x61, 0x72, 0x74, 0x65, 0x6c,
 	0x61, 0x2e, 0x65, 0x76, 0x6d, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69,
 	0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x26,
-	0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a, 0x1c, 0xe8, 0xa0, 0x1f, 0x01, 0x8a, 0xe7,
-	0xb0, 0x2a, 0x13, 0x61, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x2f, 0x78, 0x2f, 0x65, 0x76, 0x6d, 0x2f,
-	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x83, 0x01, 0x0a, 0x0e, 0x63, 0x6f, 0x6d, 0x2e, 0x61,
-	0x72, 0x74, 0x65, 0x6c, 0x61, 0x2e, 0x65, 0x76, 0x6d, 0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x1b, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x72, 0x74, 0x65, 0x6c,
-	0x61, 0x2f, 0x65, 0x76, 0x6d, 0xa2, 0x02, 0x03, 0x41, 0x45, 0x58, 0xaa, 0x02, 0x0a, 0x41, 0x72,
-	0x74, 0x65, 0x6c, 0x61, 0x2e, 0x45, 0x76, 0x6d, 0xca, 0x02, 0x0a, 0x41, 0x72, 0x74, 0x65, 0x6c,
-	0x61, 0x5c, 0x45, 0x76, 0x6d, 0xe2, 0x02, 0x16, 0x41, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x5c, 0x45,
-	0x76, 0x6d, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02,
-	0x0b, 0x41, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14,
+	0x61, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x2f, 0x65, 0x76, 0x6d, 0x2f, 0x65, 0x76, 0x6d, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x22, 0xa1, 0x03, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12,
+	0x31, 0x0a, 0x09, 0x65, 0x76, 0x6d, 0x5f, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x42, 0x14, 0xf2, 0xde, 0x1f, 0x10, 0x79, 0x61, 0x6d, 0x6c, 0x3a, 0x22, 0x65, 0x76,
+	0x6d, 0x5f, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x52, 0x08, 0x65, 0x76, 0x6d, 0x44, 0x65, 0x6e,
+	0x6f, 0x6d, 0x12, 0x3d, 0x0a, 0x0d, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x63, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x42, 0x18, 0xf2, 0xde, 0x1f, 0x14, 0x79,
+	0x61, 0x6d, 0x6c, 0x3a, 0x22, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x63, 0x72, 0x65, 0x61,
+	0x74, 0x65, 0x22, 0x52, 0x0c, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x12, 0x37, 0x0a, 0x0b, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x63, 0x61, 0x6c, 0x6c,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x42, 0x16, 0xf2, 0xde, 0x1f, 0x12, 0x79, 0x61, 0x6d, 0x6c,
+	0x3a, 0x22, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x63, 0x61, 0x6c, 0x6c, 0x22, 0x52, 0x0a,
+	0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x43, 0x61, 0x6c, 0x6c, 0x12, 0x41, 0x0a, 0x0a, 0x65, 0x78,
+	0x74, 0x72, 0x61, 0x5f, 0x65, 0x69, 0x70, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x03, 0x42, 0x22,
+	0xe2, 0xde, 0x1f, 0x09, 0x45, 0x78, 0x74, 0x72, 0x61, 0x45, 0x49, 0x50, 0x73, 0xf2, 0xde, 0x1f,
+	0x11, 0x79, 0x61, 0x6d, 0x6c, 0x3a, 0x22, 0x65, 0x78, 0x74, 0x72, 0x61, 0x5f, 0x65, 0x69, 0x70,
+	0x73, 0x22, 0x52, 0x09, 0x65, 0x78, 0x74, 0x72, 0x61, 0x45, 0x69, 0x70, 0x73, 0x12, 0x57, 0x0a,
+	0x0c, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x61, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x2e, 0x65, 0x76, 0x6d,
+	0x2e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x42, 0x1b, 0xc8, 0xde,
+	0x1f, 0x00, 0xf2, 0xde, 0x1f, 0x13, 0x79, 0x61, 0x6d, 0x6c, 0x3a, 0x22, 0x63, 0x68, 0x61, 0x69,
+	0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x22, 0x52, 0x0b, 0x63, 0x68, 0x61, 0x69, 0x6e,
+	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x32, 0x0a, 0x15, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x5f,
+	0x75, 0x6e, 0x70, 0x72, 0x6f, 0x74, 0x65, 0x63, 0x74, 0x65, 0x64, 0x5f, 0x74, 0x78, 0x73, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x08, 0x52, 0x13, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x55, 0x6e, 0x70, 0x72,
+	0x6f, 0x74, 0x65, 0x63, 0x74, 0x65, 0x64, 0x54, 0x78, 0x73, 0x3a, 0x1c, 0xe8, 0xa0, 0x1f, 0x01,
+	0x8a, 0xe7, 0xb0, 0x2a, 0x13, 0x61, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x2f, 0x78, 0x2f, 0x65, 0x76,
+	0x6d, 0x2f, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x83, 0x01, 0x0a, 0x0e, 0x63, 0x6f, 0x6d,
+	0x2e, 0x61, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x2e, 0x65, 0x76, 0x6d, 0x42, 0x0b, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x1b, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x72, 0x74,
+	0x65, 0x6c, 0x61, 0x2f, 0x65, 0x76, 0x6d, 0xa2, 0x02, 0x03, 0x41, 0x45, 0x58, 0xaa, 0x02, 0x0a,
+	0x41, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x2e, 0x45, 0x76, 0x6d, 0xca, 0x02, 0x0a, 0x41, 0x72, 0x74,
+	0x65, 0x6c, 0x61, 0x5c, 0x45, 0x76, 0x6d, 0xe2, 0x02, 0x16, 0x41, 0x72, 0x74, 0x65, 0x6c, 0x61,
+	0x5c, 0x45, 0x76, 0x6d, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
+	0xea, 0x02, 0x0b, 0x41, 0x72, 0x74, 0x65, 0x6c, 0x61, 0x3a, 0x3a, 0x45, 0x76, 0x6d, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -446,14 +1014,16 @@ func file_artela_evm_params_proto_rawDescGZIP() []byte {
 
 var file_artela_evm_params_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_artela_evm_params_proto_goTypes = []interface{}{
-	(*Params)(nil), // 0: artela.evm.Params
+	(*Params)(nil),      // 0: artela.evm.Params
+	(*ChainConfig)(nil), // 1: artela.evm.ChainConfig
 }
 var file_artela_evm_params_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: artela.evm.Params.chain_config:type_name -> artela.evm.ChainConfig
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_artela_evm_params_proto_init() }
@@ -461,6 +1031,7 @@ func file_artela_evm_params_proto_init() {
 	if File_artela_evm_params_proto != nil {
 		return
 	}
+	file_artela_evm_evm_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_artela_evm_params_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Params); i {

@@ -15,6 +15,16 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/artela/fee/params";
   }
+
+  // BaseFee queries the base fee of the parent block of the current block.
+  rpc BaseFee(QueryBaseFeeRequest) returns (QueryBaseFeeResponse) {
+    option (google.api.http).get = "/artela/fee/v1/base_fee";
+  }
+
+  // BlockGas queries the gas used at a given block height
+  rpc BlockGas(QueryBlockGasRequest) returns (QueryBlockGasResponse) {
+    option (google.api.http).get = "/artela/fee/v1/block_gas";
+  }
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -27,4 +37,24 @@ message QueryParamsResponse {
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];
+}
+
+// QueryBaseFeeRequest defines the request type for querying the EIP1559 base
+// fee.
+message QueryBaseFeeRequest {}
+
+// QueryBaseFeeResponse returns the EIP1559 base fee.
+message QueryBaseFeeResponse {
+  // base_fee is the EIP1559 base fee
+  string base_fee = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
+}
+
+// QueryBlockGasRequest defines the request type for querying the EIP1559 base
+// fee.
+message QueryBlockGasRequest {}
+
+// QueryBlockGasResponse returns block gas used for a given height.
+message QueryBlockGasResponse {
+  // gas is the returned block gas
+  int64 gas = 1;
 }

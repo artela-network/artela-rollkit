@@ -8,7 +8,6 @@ import (
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramsmodule "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/artela-network/artela-rollkit/x/fee/types"
 )
@@ -25,13 +24,13 @@ type (
 		authority string
 
 		// Legacy subspace
-		ss paramsmodule.Subspace
+		ss types.Subspace
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	ss paramsmodule.Subspace,
+	ss types.Subspace,
 	storeService store.KVStoreService,
 	transientStoreService store.TransientStoreService,
 	logger log.Logger,

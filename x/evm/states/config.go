@@ -6,13 +6,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 
-	"github.com/artela-network/artela/x/evm/txs/support"
+	"github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // EVMConfig encapsulates common parameters needed to create an EVM to execute a message
 // It's mainly to reduce the number of method parameters
 type EVMConfig struct {
-	Params      support.Params
+	Params      types.Params
 	ChainConfig *params.ChainConfig
 	CoinBase    common.Address
 	BaseFee     *big.Int

@@ -20,7 +20,7 @@ import (
 	runtime "github.com/artela-network/aspect-runtime"
 	runtimeTypes "github.com/artela-network/aspect-runtime/types"
 
-	common2 "github.com/artela-network/artela-rollkit/common"
+	artool "github.com/artela-network/artela-rollkit/common"
 	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
 )
@@ -760,7 +760,7 @@ func isAspectDeployed(ctx sdk.Context, store *AspectStore, aspectId common.Addre
 
 func validateCode(ctx sdk.Context, aspectCode []byte) ([]byte, error) {
 	startTime := time.Now()
-	validator, err := runtime.NewValidator(ctx, common2.WrapLogger(ctx.Logger()), runtime.WASM)
+	validator, err := runtime.NewValidator(ctx, artool.WrapLogger(ctx.Logger()), runtime.WASM)
 	if err != nil {
 		return nil, err
 	}
@@ -816,7 +816,7 @@ func checkContractOwner(ctx *HandlerContext, contractAddr common.Address, gas ui
 
 func checkAspectOwner(ctx sdk.Context, aspectId common.Address, sender common.Address, gas uint64, code []byte, version *uint256.Int, commit bool) (bool, uint64, error) {
 	aspectCtx := mustGetAspectContext(ctx)
-	runner, err := run.NewRunner(aspectCtx, common2.WrapLogger(ctx.Logger()), aspectId.String(), version.Uint64(), code, commit)
+	runner, err := run.NewRunner(aspectCtx, artool.WrapLogger(ctx.Logger()), aspectId.String(), version.Uint64(), code, commit)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create runner: %v", err))
 	}

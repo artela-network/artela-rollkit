@@ -213,9 +213,15 @@ func New(
 				// This needs to be removed after IBC supports App Wiring.
 				app.GetIBCKeeper,
 				app.GetCapabilityScopedKeeper,
-				app.GetSubspace,
 				// Supply the logger
 				logger,
+
+				// Supply block height getter, required by evm keeper
+				app.LastBlockHeight,
+
+				// Supply subspace params getter, required by fee and evm keeper
+				app.GetSubspace,
+				app.ChainID,
 
 				// ADVANCED CONFIGURATION
 				//

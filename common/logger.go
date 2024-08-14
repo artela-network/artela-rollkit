@@ -1,8 +1,7 @@
 package common
 
 import (
-	"github.com/cometbft/cometbft/libs/log"
-
+	"cosmossdk.io/log"
 	"github.com/artela-network/aspect-runtime/types"
 )
 

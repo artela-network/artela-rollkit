@@ -7,20 +7,21 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/artela-network/artela-evm/vm"
-	statedb "github.com/artela-network/artela/x/evm/states"
-	evmtypes "github.com/artela-network/artela/x/evm/types"
 	inherent "github.com/artela-network/aspect-core/chaincoreext/jit_inherent"
 	artelatypes "github.com/artela-network/aspect-core/types"
+
+	artool "github.com/artela-network/artela-rollkit/common"
+	statedb "github.com/artela-network/artela-rollkit/x/evm/states"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 const (
@@ -29,14 +30,9 @@ const (
 	AspectModuleName = "aspect"
 )
 
-var cachedStoreKey storetypes.StoreKey
+var cachedStoreService store.KVStoreService
 
-type (
-	HistoryStoreBuilder func(height int64, keyPrefix string) (prefix.Store, error)
-	ContextBuilder      func(height int64, prove bool) (cosmos.Context, error)
-
-	GetLastBlockHeight func() int64
-)
+type GetLastBlockHeight func() int64
 
 // AspectRuntimeContext is the contextual object required for Aspect execution,
 // containing information related to transactions (tx) and blocks. Aspects at different
@@ -65,7 +61,7 @@ type AspectRuntimeContext struct {
 	ethBlockContext *EthBlockContext
 	aspectState     *AspectState
 	cosmosCtx       *cosmos.Context
-	storeKey        storetypes.StoreKey
+	storeService    store.KVStoreService
 
 	logger     log.Logger
 	jitManager *inherent.Manager
@@ -74,14 +70,14 @@ type AspectRuntimeContext struct {
 func NewAspectRuntimeContext() *AspectRuntimeContext {
 	return &AspectRuntimeContext{
 		aspectContext: NewAspectContext(),
-		storeKey:      cachedStoreKey,
+		storeService:  cachedStoreService,
 		logger:        log.NewNopLogger(),
 	}
 }
 
-func (c *AspectRuntimeContext) Init(storeKey storetypes.StoreKey) {
-	cachedStoreKey = storeKey
-	c.storeKey = storeKey
+func (c *AspectRuntimeContext) Init(storeService store.KVStoreService) {
+	cachedStoreService = storeService
+	c.storeService = storeService
 }
 
 func (c *AspectRuntimeContext) WithCosmosContext(newTxCtx cosmos.Context) {
@@ -107,8 +103,8 @@ func (c *AspectRuntimeContext) CosmosContext() cosmos.Context {
 	return *c.cosmosCtx
 }
 
-func (c *AspectRuntimeContext) StoreKey() storetypes.StoreKey {
-	return c.storeKey
+func (c *AspectRuntimeContext) StoreService() store.KVStoreService {
+	return c.storeService
 }
 
 func (c *AspectRuntimeContext) SetEthTxContext(newTxCtx *EthTxContext, jitManager *inherent.Manager) {
@@ -155,7 +151,7 @@ func (c *AspectRuntimeContext) ClearBlockContext() {
 }
 
 func (c *AspectRuntimeContext) CreateStateObject() {
-	c.aspectState = NewAspectState(*c.cosmosCtx, c.storeKey, AspectStateKeyPrefix, c.logger)
+	c.aspectState = NewAspectState(*c.cosmosCtx, c.storeService, AspectStateKeyPrefix, c.logger)
 }
 
 func (c *AspectRuntimeContext) GetAspectState(ctx *artelatypes.RunnerContext, key string) []byte {
@@ -403,18 +399,18 @@ func (c *AspectContext) Clear() {
 }
 
 type AspectState struct {
-	state    prefix.Store
-	storeKey storetypes.StoreKey
+	state        store.KVStore
+	storeService store.KVStoreService
 
 	logger log.Logger
 }
 
-func NewAspectState(ctx cosmos.Context, storeKey storetypes.StoreKey, fixKey string, logger log.Logger) *AspectState {
-	cacheStore := prefix.NewStore(ctx.KVStore(storeKey), evmtypes.KeyPrefix(fixKey))
+func NewAspectState(ctx cosmos.Context, storeService store.KVStoreService, fixKey string, logger log.Logger) *AspectState {
+	cacheStore := artool.NewPrefixStore(storeService.OpenKVStore(ctx), evmtypes.KeyPrefix(fixKey))
 	stateObj := &AspectState{
-		state:    cacheStore,
-		storeKey: storeKey,
-		logger:   logger,
+		state:        cacheStore,
+		storeService: storeService,
+		logger:       logger,
 	}
 	return stateObj
 }
@@ -422,10 +418,10 @@ func NewAspectState(ctx cosmos.Context, storeKey storetypes.StoreKey, fixKey str
 func (k *AspectState) Set(key, value []byte) {
 	action := "updated"
 	if len(value) == 0 {
-		k.state.Delete(key)
+		_ = k.state.Delete(key)
 		action = "deleted"
 	} else {
-		k.state.Set(key, value)
+		_ = k.state.Set(key, value)
 	}
 
 	if value == nil {
@@ -436,7 +432,7 @@ func (k *AspectState) Set(key, value []byte) {
 }
 
 func (k *AspectState) Get(key []byte) []byte {
-	val := k.state.Get(key)
+	val, _ := k.state.Get(key)
 	if val == nil {
 		k.logger.Debug("getState:", "key", string(key), "value", "nil")
 	} else {

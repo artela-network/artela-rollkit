@@ -3,16 +3,17 @@ package contract
 import (
 	"math/big"
 
-	"github.com/cometbft/cometbft/libs/log"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/emirpasic/gods/sets/treeset"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/holiman/uint256"
 	"github.com/pkg/errors"
 
-	evmtypes "github.com/artela-network/artela/x/evm/artela/types"
 	artela "github.com/artela-network/aspect-core/types"
+
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/artela/types"
 )
 
 type AspectService struct {
@@ -20,10 +21,10 @@ type AspectService struct {
 	getHeight   evmtypes.GetLastBlockHeight
 }
 
-func NewAspectService(storeKey storetypes.StoreKey,
+func NewAspectService(storeService store.KVStoreService,
 	getHeight evmtypes.GetLastBlockHeight, logger log.Logger) *AspectService {
 	return &AspectService{
-		aspectStore: NewAspectStore(storeKey, logger),
+		aspectStore: NewAspectStore(storeService, logger),
 		getHeight:   getHeight,
 	}
 }

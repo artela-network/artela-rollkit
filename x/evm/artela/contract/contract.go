@@ -3,9 +3,9 @@ package contract
 import (
 	"strings"
 
+	"cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
-	storetypes "cosmossdk.io/store/types"
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -28,14 +28,14 @@ type AspectNativeContract struct {
 	handlers map[string]Handler
 }
 
-func NewAspectNativeContract(storeKey storetypes.StoreKey,
+func NewAspectNativeContract(storeService store.KVStoreService,
 	evm *vm.EVM,
 	getBlockHeight func() int64,
 	evmState *states.StateDB,
 	logger log.Logger,
 ) *AspectNativeContract {
 	return &AspectNativeContract{
-		aspectService: NewAspectService(storeKey, getBlockHeight, logger),
+		aspectService: NewAspectService(storeService, getBlockHeight, logger),
 		evm:           evm,
 		evmState:      evmState,
 		logger:        logger,

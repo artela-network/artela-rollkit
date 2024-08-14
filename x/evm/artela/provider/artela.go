@@ -4,29 +4,30 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cometbft/cometbft/libs/log"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/artela-network/artela/x/evm/artela/contract"
-	"github.com/artela-network/artela/x/evm/artela/types"
 	asptypes "github.com/artela-network/aspect-core/types"
+
+	"github.com/artela-network/artela-rollkit/x/evm/artela/contract"
+	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 )
 
 var _ asptypes.AspectProvider = (*ArtelaProvider)(nil)
 
 type ArtelaProvider struct {
-	service  *contract.AspectService
-	storeKey storetypes.StoreKey
+	service      *contract.AspectService
+	storeService store.KVStoreService
 }
 
-func NewArtelaProvider(storeKey storetypes.StoreKey,
+func NewArtelaProvider(storeService store.KVStoreService,
 	getBlockHeight types.GetLastBlockHeight,
 	logger log.Logger,
 ) *ArtelaProvider {
-	service := contract.NewAspectService(storeKey, getBlockHeight, logger)
+	service := contract.NewAspectService(storeService, getBlockHeight, logger)
 
-	return &ArtelaProvider{service, storeKey}
+	return &ArtelaProvider{service, storeService}
 }
 
 func (j *ArtelaProvider) GetTxBondAspects(ctx context.Context, address common.Address, point asptypes.PointCut) ([]*asptypes.AspectCode, error) {

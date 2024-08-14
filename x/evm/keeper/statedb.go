@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/store/prefix"
+	types2 "cosmossdk.io/store/types"
 	"github.com/status-im/keycard-go/hexutils"
 
 	errorsmod "cosmossdk.io/errors"
@@ -130,13 +130,13 @@ func (k *Keeper) SetAccount(ctx cosmos.Context, addr common.Address, account sta
 
 // SetState update contract storage, delete if value is empty.
 func (k *Keeper) SetState(ctx cosmos.Context, addr common.Address, key common.Hash, value []byte) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.AddressStoragePrefix(addr))
+	store := artool.NewPrefixStore(k.storeService.OpenKVStore(ctx), types.AddressStoragePrefix(addr))
 	action := "updated"
 	if len(value) == 0 {
-		store.Delete(key.Bytes())
+		_ = store.Delete(key.Bytes())
 		action = "deleted"
 	} else {
-		store.Set(key.Bytes(), value)
+		_ = store.Set(key.Bytes(), value)
 	}
 	k.Logger().Debug(
 		fmt.Sprintf("setState: SetState %s", action),
@@ -147,7 +147,7 @@ func (k *Keeper) SetState(ctx cosmos.Context, addr common.Address, key common.Ha
 
 // SetCode set contract code, delete if code is empty.
 func (k *Keeper) SetCode(ctx cosmos.Context, codeHash, code []byte) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixCode)
+	store := artool.NewPrefixStore(k.storeService.OpenKVStore(ctx), types.KeyPrefixCode)
 
 	// store or delete code
 	action := "updated"
@@ -166,10 +166,13 @@ func (k *Keeper) SetCode(ctx cosmos.Context, codeHash, code []byte) {
 
 // ForEachStorage iterate contract storage, callback return false to break early
 func (k *Keeper) ForEachStorage(ctx cosmos.Context, addr common.Address, cb func(key, value common.Hash) bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.storeService.OpenKVStore(ctx)
 	prefix := types.AddressStoragePrefix(addr)
 
-	iterator := cosmos.KVStorePrefixIterator(store, prefix)
+	iterator, err := store.Iterator(prefix, types2.PrefixEndBytes(prefix))
+	if err != nil {
+		return
+	}
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

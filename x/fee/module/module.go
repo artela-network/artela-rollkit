@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	paramsmodule "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
 	// this line is used by starport scaffolding # 1
@@ -178,7 +177,7 @@ type ModuleInputs struct {
 
 	StoreService          store.KVStoreService
 	TransientStoreService store.TransientStoreService
-	Subspace              paramsmodule.Subspace
+	Subspace              types.Subspace
 	Cdc                   codec.Codec
 	Config                *modulev1.Module
 	Logger                log.Logger

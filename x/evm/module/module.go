@@ -129,7 +129,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.Ra
 	// Initialize global index to index in genesis state
 	cdc.MustUnmarshalJSON(gs, &genState)
 
-	InitGenesis(ctx, am.keeper, genState)
+	InitGenesis(ctx, am.keeper, am.accountKeeper, genState)
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
@@ -178,13 +178,20 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	StoreService store.KVStoreService
-	Cdc          codec.Codec
-	Config       *modulev1.Module
-	Logger       log.Logger
+	StoreService          store.KVStoreService
+	TransientStoreService store.TransientStoreService
+	Cdc                   codec.Codec
+	Config                *modulev1.Module
+	Logger                log.Logger
 
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper
+	StakingKeeper types.StakingKeeper
+	FeeKeeper     types.FeeKeeper
+
+	SubSpace      types.ParamSubspace
+	BlockGetter   types.BlockGetter
+	ChainIDGetter types.ChainIDGetter
 }
 
 type ModuleOutputs struct {
@@ -203,6 +210,14 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	k := keeper.NewKeeper(
 		in.Cdc,
 		in.StoreService,
+		in.TransientStoreService,
+		in.AccountKeeper,
+		in.BankKeeper,
+		in.StakingKeeper,
+		in.FeeKeeper,
+		in.SubSpace,
+		in.BlockGetter,
+		in.ChainIDGetter,
 		in.Logger,
 		authority.String(),
 	)

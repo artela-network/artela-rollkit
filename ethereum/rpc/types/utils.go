@@ -18,7 +18,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 
-	evmtypes "github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 	feetypes "github.com/artela-network/artela-rollkit/x/fee/types"
 )
 
@@ -76,21 +76,22 @@ func EthHeaderFromTendermint(header tmtypes.Header, bloom ethtypes.Bloom, baseFe
 
 // BlockMaxGasFromConsensusParams returns the gas limit for the current block from the chain consensus params.
 func BlockMaxGasFromConsensusParams(ctx context.Context, clientCtx client.Context, blockHeight int64) (int64, error) {
-	resConsParams, err := clientCtx.Client.ConsensusParams(ctx, &blockHeight)
+	//resConsParams, err := clientCtx.Client.ConsensusParams(ctx, &blockHeight)
 	defaultGasLimit := int64(^uint32(0)) // #nosec G701
-	if err != nil {
-		return defaultGasLimit, err
-	}
+	//if err != nil {
+	//	return defaultGasLimit, err
+	//}
+	//
+	//gasLimit := resConsParams.ConsensusParams.Block.MaxGas
+	//if gasLimit == -1 {
+	//	// Sets gas limit to max uint32 to not error with javascript dev tooling
+	//	// This -1 value indicating no block gas limit is set to max uint64 with geth hexutils
+	//	// which errors certain javascript dev tooling which only supports up to 53 bits
+	//	gasLimit = defaultGasLimit
+	//}
 
-	gasLimit := resConsParams.ConsensusParams.Block.MaxGas
-	if gasLimit == -1 {
-		// Sets gas limit to max uint32 to not error with javascript dev tooling
-		// This -1 value indicating no block gas limit is set to max uint64 with geth hexutils
-		// which errors certain javascript dev tooling which only supports up to 53 bits
-		gasLimit = defaultGasLimit
-	}
-
-	return gasLimit, nil
+	// FIXME: return default gas limit for now
+	return defaultGasLimit, nil
 }
 
 // FormatBlock creates an ethereum block from a tendermint header and ethereum-formatted
@@ -254,12 +255,12 @@ func CheckTxFee(gasPrice *big.Int, gas uint64, cap float64) error {
 }
 
 // TxExceedBlockGasLimit returns true if the txs exceeds block gas limit.
-func TxExceedBlockGasLimit(res *abci.ResponseDeliverTx) bool {
+func TxExceedBlockGasLimit(res *abci.ExecTxResult) bool {
 	return strings.Contains(res.Log, ExceedBlockGasLimitError)
 }
 
 // TxSuccessOrExceedsBlockGasLimit returnsrue if the txs was successful
 // or if it failed with an ExceedBlockGasLimit error
-func TxSuccessOrExceedsBlockGasLimit(res *abci.ResponseDeliverTx) bool {
+func TxSuccessOrExceedsBlockGasLimit(res *abci.ExecTxResult) bool {
 	return res.Code == 0 || TxExceedBlockGasLimit(res)
 }

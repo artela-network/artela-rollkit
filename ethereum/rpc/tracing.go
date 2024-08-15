@@ -13,15 +13,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/artela-network/artela-rollkit/x/evm/txs/support"
-
 	rpctypes "github.com/artela-network/artela-rollkit/ethereum/rpc/types"
 	evmtxs "github.com/artela-network/artela-rollkit/x/evm/txs"
+	"github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // TraceTransaction returns the structured logs created during the execution of EVM
 // and returns them as a JSON object.
-func (b *BackendImpl) TraceTransaction(hash common.Hash, config *support.TraceConfig) (interface{}, error) {
+func (b *BackendImpl) TraceTransaction(hash common.Hash, config *types.TraceConfig) (interface{}, error) {
 	// Get transaction by hash
 	transaction, err := b.GetTxByEthHash(hash)
 	if err != nil {
@@ -50,7 +49,7 @@ func (b *BackendImpl) TraceTransaction(hash common.Hash, config *support.TraceCo
 		return nil, fmt.Errorf("transaction not included in block %v", blk.Block.Height)
 	}
 
-	var predecessors []*evmtxs.MsgEthereumTx
+	var predecessors []*types.MsgEthereumTx
 	for _, txBz := range blk.Block.Txs[:transaction.TxIndex] {
 		tx, err := b.clientCtx.TxConfig.TxDecoder()(txBz)
 		if err != nil {
@@ -58,7 +57,7 @@ func (b *BackendImpl) TraceTransaction(hash common.Hash, config *support.TraceCo
 			continue
 		}
 		for _, msg := range tx.GetMsgs() {
-			ethMsg, ok := msg.(*evmtxs.MsgEthereumTx)
+			ethMsg, ok := msg.(*types.MsgEthereumTx)
 			if !ok {
 				continue
 			}
@@ -76,14 +75,14 @@ func (b *BackendImpl) TraceTransaction(hash common.Hash, config *support.TraceCo
 	// add predecessor messages in current cosmos tx
 	index := int(transaction.MsgIndex) // #nosec G701
 	for i := 0; i < index; i++ {
-		ethMsg, ok := tx.GetMsgs()[i].(*evmtxs.MsgEthereumTx)
+		ethMsg, ok := tx.GetMsgs()[i].(*types.MsgEthereumTx)
 		if !ok {
 			continue
 		}
 		predecessors = append(predecessors, ethMsg)
 	}
 
-	ethMessage, ok := tx.GetMsgs()[transaction.MsgIndex].(*evmtxs.MsgEthereumTx)
+	ethMessage, ok := tx.GetMsgs()[transaction.MsgIndex].(*types.MsgEthereumTx)
 	if !ok {
 		b.logger.Debug("invalid transaction type", "type", fmt.Sprintf("%T", tx))
 		return nil, fmt.Errorf("invalid transaction type %T", tx)
@@ -99,7 +98,7 @@ func (b *BackendImpl) TraceTransaction(hash common.Hash, config *support.TraceCo
 		return nil, err
 	}
 
-	traceTxRequest := evmtxs.QueryTraceTxRequest{
+	traceTxRequest := types.QueryTraceTxRequest{
 		Msg:             ethMessage,
 		Predecessors:    predecessors,
 		BlockNumber:     blk.Block.Height,
@@ -140,7 +139,7 @@ func (b *BackendImpl) TraceTransaction(hash common.Hash, config *support.TraceCo
 // executes all the transactions contained within. The return value will be one item
 // per transaction, dependent on the requested tracer.
 func (b *BackendImpl) TraceBlock(height rpc.BlockNumber,
-	config *support.TraceConfig,
+	config *types.TraceConfig,
 	block *tmrpctypes.ResultBlock,
 ) ([]*evmtxs.TxTraceResult, error) {
 	txs := block.Block.Txs
@@ -153,7 +152,7 @@ func (b *BackendImpl) TraceBlock(height rpc.BlockNumber,
 
 	txDecoder := b.clientCtx.TxConfig.TxDecoder()
 
-	var txsMessages []*evmtxs.MsgEthereumTx
+	var txsMessages []*types.MsgEthereumTx
 	for i, tx := range txs {
 		decodedTx, err := txDecoder(tx)
 		if err != nil {
@@ -162,7 +161,7 @@ func (b *BackendImpl) TraceBlock(height rpc.BlockNumber,
 		}
 
 		for _, msg := range decodedTx.GetMsgs() {
-			ethMessage, ok := msg.(*evmtxs.MsgEthereumTx)
+			ethMessage, ok := msg.(*types.MsgEthereumTx)
 			if !ok {
 				// Just considers Ethereum transactions
 				continue
@@ -188,7 +187,7 @@ func (b *BackendImpl) TraceBlock(height rpc.BlockNumber,
 		return nil, err
 	}
 
-	traceBlockRequest := &evmtxs.QueryTraceBlockRequest{
+	traceBlockRequest := &types.QueryTraceBlockRequest{
 		Txs:             txsMessages,
 		TraceConfig:     config,
 		BlockNumber:     block.Block.Height,

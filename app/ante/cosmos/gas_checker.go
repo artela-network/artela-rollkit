@@ -4,6 +4,7 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -54,7 +55,7 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, sim
 
 	// Determine the required fees by multiplying each required minimum gas
 	// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-	gasLimit := cosmos.NewDecFromBigInt(new(big.Int).SetUint64(gas))
+	gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
 	for _, gp := range minGasPrices {
 		fee := gp.Amount.Mul(gasLimit).Ceil().RoundInt()

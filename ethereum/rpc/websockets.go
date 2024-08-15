@@ -27,8 +27,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	evmsupport "github.com/artela-network/artela-rollkit/x/evm/txs/support"
-
 	rpcfilter "github.com/artela-network/artela-rollkit/ethereum/rpc/filters"
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/pubsub"
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/types"
@@ -407,23 +405,23 @@ func (api *pubSubAPI) subscribeNewHeads(wsConn *wsConn, subID rpc.ID) (pubsub.Un
 					return
 				}
 
-				data, ok := event.Data.(tmtypes.EventDataNewBlockHeader)
+				data, ok := event.Data.(tmtypes.EventDataNewBlock)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", event.Data))
 					continue
 				}
 
-				baseFee := types.BaseFeeFromEvents(data.ResultBeginBlock.Events)
+				baseFee := types.BaseFeeFromEvents(data.ResultFinalizeBlock.Events)
 
-				cosmosHash := data.Header.Hash()
+				cosmosHash := data.Block.Header.Hash()
 
-				header := types.EthHeaderFromTendermint(data.Header, ethtypes.Bloom{}, baseFee)
-				if data.NumTxs == 0 {
+				header := types.EthHeaderFromTendermint(data.Block.Header, ethtypes.Bloom{}, baseFee)
+				if data.Block.Txs.Len() == 0 {
 					header.TxHash = ethtypes.EmptyTxsHash
 				}
 
 				bloom := ethtypes.Bloom{}
-				for _, et := range data.ResultEndBlock.Events {
+				for _, et := range data.ResultFinalizeBlock.Events {
 					if et.Type != evmtypes.EventTypeBlockBloom {
 						continue
 					}
@@ -432,7 +430,7 @@ func (api *pubSubAPI) subscribeNewHeads(wsConn *wsConn, subID rpc.ID) (pubsub.Un
 						if attr.Key == evmtypes.AttributeKeyEthereumBloom {
 							encodedBloom, deCodeErr := base64.StdEncoding.DecodeString(attr.Value)
 
-							sprintf := fmt.Sprintf("subscribeNewHeads event %d bloom %s header %d, ", len(bloom.Bytes()), attr.Value, data.Header.Height)
+							sprintf := fmt.Sprintf("subscribeNewHeads event %d bloom %s header %d, ", len(bloom.Bytes()), attr.Value, data.Block.Header.Height)
 							api.logger.Info(sprintf)
 
 							if len(encodedBloom) != 256 {
@@ -643,7 +641,7 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 					return
 				}
 
-				logs := rpcfilter.FilterLogs(evmsupport.LogsToEthereum(txResponse.Logs), crit.FromBlock, crit.ToBlock, crit.Addresses, crit.Topics)
+				logs := rpcfilter.FilterLogs(evmtypes.LogsToEthereum(txResponse.Logs), crit.FromBlock, crit.ToBlock, crit.Addresses, crit.Topics)
 				if len(logs) == 0 {
 					continue
 				}

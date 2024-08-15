@@ -2,23 +2,23 @@ package ante
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/store/types"
+	txs "cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authmodule "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	cosmosante "github.com/artela-network/artela-rollkit/app/ante/cosmos"
 	evmante "github.com/artela-network/artela-rollkit/app/ante/evm"
 	anteutils "github.com/artela-network/artela-rollkit/app/ante/utils"
 	"github.com/artela-network/artela-rollkit/app/interfaces"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmmodule "github.com/artela-network/artela-rollkit/x/evm/types"
 	// vestingtypes "github.com/artela-network/artela-rollkit/x/vesting/types"
 )
@@ -36,8 +36,8 @@ type AnteDecorators struct {
 	EvmKeeper              interfaces.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
-	SignModeHandler        authsigning.SignModeHandler
-	SigGasConsumer         func(meter cosmos.GasMeter, sig signing.SignatureV2, params authmodule.Params) error
+	SignModeHandler        *txs.HandlerMap
+	SigGasConsumer         func(meter types.GasMeter, sig signing.SignatureV2, params authmodule.Params) error
 	MaxTxGasWanted         uint64
 	TxFeeChecker           anteutils.TxFeeChecker
 }
@@ -108,7 +108,7 @@ func newCosmosAnteHandler(options AnteDecorators) cosmos.AnteHandler {
 	return cosmos.ChainAnteDecorators(
 		cosmosante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
-			cosmos.MsgTypeURL(&txs.MsgEthereumTx{}),
+			cosmos.MsgTypeURL(&evmmodule.MsgEthereumTx{}),
 			cosmos.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
 		),
 		ante.NewSetUpContextDecorator(),
@@ -136,7 +136,7 @@ func newLegacyCosmosAnteHandlerEip712(options AnteDecorators) cosmos.AnteHandler
 	return cosmos.ChainAnteDecorators(
 		cosmosante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
-			cosmos.MsgTypeURL(&txs.MsgEthereumTx{}),
+			cosmos.MsgTypeURL(&evmmodule.MsgEthereumTx{}),
 			cosmos.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
 		),
 		ante.NewSetUpContextDecorator(),
@@ -153,7 +153,7 @@ func newLegacyCosmosAnteHandlerEip712(options AnteDecorators) cosmos.AnteHandler
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		// Note: signature verification uses EIP instead of the cosmos signature validator
 		//nolint: staticcheck
-		cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeKeeper),

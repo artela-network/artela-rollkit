@@ -6,14 +6,13 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ethereum "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/artela-network/artela-rollkit/app/interfaces"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmmodule "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -37,7 +36,7 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx,
 	}
 
 	// We need to setup an empty gas config so that the gas is consistent with Ethereum.
-	newCtx = ctx.WithGasMeter(cosmos.NewInfiniteGasMeter()).
+	newCtx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
@@ -64,9 +63,9 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, s
 	txIndex := eeed.evmKeeper.GetTxIndexTransient(ctx)
 
 	for i, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 
 		// emit ethereum tx hash as an event so that it can be indexed by Tendermint for query purposes
@@ -100,7 +99,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx
 		return next(ctx, tx, simulate)
 	}
 
-	err := tx.ValidateBasic()
+	err := tx.(cosmos.HasValidateBasic).ValidateBasic()
 	// ErrNoSignatures is fine with eth tx
 	if err != nil && !errors.Is(err, errortypes.ErrNoSignatures) {
 		return ctx, errorsmod.Wrap(err, "tx basic validation failed")
@@ -151,9 +150,9 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx
 	evmDenom := evmParams.GetEvmDenom()
 
 	for _, msg := range protoTx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 
 		// Validate `From` field
@@ -182,7 +181,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx
 		txFee = txFee.Add(cosmos.Coin{Denom: evmDenom, Amount: sdkmath.NewIntFromBigInt(txData.Fee())})
 	}
 
-	if !authInfo.Fee.Amount.IsEqual(txFee) {
+	if !authInfo.Fee.Amount.Equal(txFee) {
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", authInfo.Fee.Amount, txFee)
 	}
 

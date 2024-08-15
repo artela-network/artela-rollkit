@@ -4,11 +4,11 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/artela-network/artela-rollkit/app/interfaces"
-	evmtypes "github.com/artela-network/artela-rollkit/x/evm/txs"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
 
 	ethereum "github.com/ethereum/go-ethereum/core/types"
@@ -64,12 +64,12 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx,
 	baseFee := empd.evmKeeper.GetBaseFee(ctx, ethCfg)
 
 	for _, msg := range tx.GetMsgs() {
-		ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
+		ethMsg, ok := msg.(*types.MsgEthereumTx)
 		if !ok {
 			return ctx, errorsmod.Wrapf(
 				errortypes.ErrUnknownRequest,
 				"invalid message type %T, expected %T",
-				msg, (*evmtypes.MsgEthereumTx)(nil),
+				msg, (*types.MsgEthereumTx)(nil),
 			)
 		}
 
@@ -93,10 +93,10 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx,
 			feeAmt = ethMsg.GetEffectiveFee(baseFee)
 		}
 
-		gasLimit := cosmos.NewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
+		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
 
 		requiredFee := minGasPrice.Mul(gasLimit)
-		fee := cosmos.NewDecFromBigInt(feeAmt)
+		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
 
 		if fee.LT(requiredFee) {
 			return ctx, errorsmod.Wrapf(
@@ -131,13 +131,13 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, s
 	minGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
 
 	for _, msg := range tx.GetMsgs() {
-		ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
+		ethMsg, ok := msg.(*types.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*types.MsgEthereumTx)(nil))
 		}
 
-		fee := cosmos.NewDecFromBigInt(ethMsg.GetFee())
-		gasLimit := cosmos.NewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
+		fee := sdkmath.LegacyNewDecFromBigInt(ethMsg.GetFee())
+		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
 		requiredFee := minGasPrice.Mul(gasLimit)
 
 		if fee.LT(requiredFee) {

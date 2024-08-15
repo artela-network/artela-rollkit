@@ -12,6 +12,7 @@ import (
 	"time"
 
 	cosmos "cosmossdk.io/store/pruning/types"
+	dbm "github.com/cometbft/cometbft-db"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -200,7 +201,7 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 	cmd.Flags().String(flagGRPCAddress, serverconfig.DefaultGRPCAddress, "the gRPC server address to listen on")
 
 	cmd.Flags().Bool(flagGRPCWebEnable, true, "Define if the gRPC-Web server should be enabled. (Note: gRPC must also be enabled)")
-	cmd.Flags().String(flagGRPCWebAddress, serverconfig.DefaultGRPCWebAddress, "The gRPC-Web server address to listen on")
+	//cmd.Flags().String(flagGRPCWebAddress, serverconfig.DefaultGRPCWebAddress, "The gRPC-Web server address to listen on")
 
 	cmd.Flags().Uint64(FlagStateSyncSnapshotInterval, 0, "State sync snapshot interval")
 	cmd.Flags().Uint32(FlagStateSyncSnapshotKeepRecent, 2, "State sync snapshot to keep")
@@ -245,7 +246,7 @@ func startStandAlone(ctx *sdkserver.Context, appCreator types.AppCreator) error 
 	transport := ctx.Viper.GetString(flagTransport)
 	home := ctx.Viper.GetString(flags.FlagHome)
 
-	db, err := openDB(home, sdkserver.GetAppDBBackend(ctx.Viper))
+	db, err := openDB(home, dbm.BackendType(sdkserver.GetAppDBBackend(ctx.Viper)))
 	if err != nil {
 		return err
 	}

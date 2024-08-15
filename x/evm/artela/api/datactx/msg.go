@@ -7,9 +7,10 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/artela-network/artela/x/evm/artela/types"
 	aspctx "github.com/artela-network/aspect-core/context"
 	artelatypes "github.com/artela-network/aspect-core/types"
+
+	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 )
 
 type MessageContextFieldLoader func(ethTxCtx *types.EthTxContext, message *core.Message) proto.Message

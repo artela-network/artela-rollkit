@@ -10,8 +10,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/artela-network/artela-rollkit/x/evm/txs/support"
-
 	anteutils "github.com/artela-network/artela-rollkit/app/ante/utils"
 	"github.com/artela-network/artela-rollkit/app/interfaces"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
@@ -52,9 +50,9 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 	}
 
 	for i, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 
 		txData, err := evmmodule.UnpackTxData(msgEthTx.Data)
@@ -161,9 +159,9 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, 
 	baseFee := egcd.evmKeeper.GetBaseFee(ctx, ethCfg)
 
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 		from := msgEthTx.GetFrom()
 
@@ -268,9 +266,9 @@ func (ctd CanTransferDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, sim
 	ethCfg := params.ChainConfig.EthereumConfig(ctx.BlockHeight(), ctd.evmKeeper.ChainID())
 
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 
 		baseFee := ctd.evmKeeper.GetBaseFee(ctx, ethCfg)
@@ -285,7 +283,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, sim
 			)
 		}
 
-		if support.IsLondon(ethCfg, ctx.BlockHeight()) {
+		if evmmodule.IsLondon(ethCfg, ctx.BlockHeight()) {
 			if baseFee == nil {
 				return ctx, errorsmod.Wrap(
 					evmmodule.ErrInvalidBaseFee,
@@ -309,7 +307,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, sim
 			BaseFee:     baseFee,
 		}
 
-		stateDB := states.New(ctx, ctd.evmKeeper, states.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())))
+		stateDB := states.New(ctx, ctd.evmKeeper, states.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
 		evm := ctd.evmKeeper.NewEVM(ctx, coreMsg, cfg, txs.NewNoOpTracer(), stateDB)
 
 		// check that caller has enough balance to cover asset transfer for **topmost** call
@@ -344,9 +342,9 @@ func NewEthIncrementSenderSequenceDecorator(ak evmmodule.AccountKeeper) EthIncre
 // this AnteHandler decorator.
 func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, simulate bool, next cosmos.AnteHandler) (cosmos.Context, error) {
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 
 		txData, err := evmmodule.UnpackTxData(msgEthTx.Data)

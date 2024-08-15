@@ -28,12 +28,11 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/artela-network/artela-rollkit-evm/vm"
+	"github.com/artela-network/artela-evm/vm"
 
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/ethapi"
 	rpctypes "github.com/artela-network/artela-rollkit/ethereum/rpc/types"
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/utils"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -264,7 +263,7 @@ func (b *BackendImpl) blockNumberFromCosmos(blockNrOrHash rpc.BlockNumberOrHash)
 func (b *BackendImpl) BlockNumber() (hexutil.Uint64, error) {
 	// do any grpc query, ignore the response and use the returned block height
 	var header metadata.MD
-	_, err := b.queryClient.Params(b.ctx, &txs.QueryParamsRequest{}, grpc.Header(&header))
+	_, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{}, grpc.Header(&header))
 	if err != nil {
 		return hexutil.Uint64(0), err
 	}
@@ -304,7 +303,7 @@ func (b *BackendImpl) GetCode(address common.Address, blockNrOrHash rpc.BlockNum
 		return nil, err
 	}
 
-	req := &txs.QueryCodeRequest{
+	req := &evmtypes.QueryCodeRequest{
 		Address: address.String(),
 	}
 
@@ -323,7 +322,7 @@ func (b *BackendImpl) GetStorageAt(address common.Address, key string, blockNrOr
 		return nil, err
 	}
 
-	req := &txs.QueryStorageRequest{
+	req := &evmtypes.QueryStorageRequest{
 		Address: address.String(),
 		Key:     key,
 	}
@@ -339,7 +338,7 @@ func (b *BackendImpl) GetStorageAt(address common.Address, key string, blockNrOr
 
 // BlockBloom query block bloom filter from block results
 func (b *BackendImpl) blockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.Bloom, error) {
-	for _, event := range blockRes.EndBlockEvents {
+	for _, event := range blockRes.FinalizeBlockEvents {
 		if event.Type != evmtypes.EventTypeBlockBloom {
 			continue
 		}
@@ -408,8 +407,8 @@ func (b *BackendImpl) BlockFromCosmosBlock(resBlock *tmrpctypes.ResultBlock, blo
 	return res, nil
 }
 
-func (b *BackendImpl) EthMsgsFromCosmosBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults) []*txs.MsgEthereumTx {
-	var result []*txs.MsgEthereumTx
+func (b *BackendImpl) EthMsgsFromCosmosBlock(resBlock *tmrpctypes.ResultBlock, blockRes *tmrpctypes.ResultBlockResults) []*evmtypes.MsgEthereumTx {
+	var result []*evmtypes.MsgEthereumTx
 	block := resBlock.Block
 
 	txResults := blockRes.TxsResults
@@ -430,7 +429,7 @@ func (b *BackendImpl) EthMsgsFromCosmosBlock(resBlock *tmrpctypes.ResultBlock, b
 		}
 
 		for _, msg := range tx.GetMsgs() {
-			ethMsg, ok := msg.(*txs.MsgEthereumTx)
+			ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
 			if !ok {
 				continue
 			}
@@ -443,7 +442,7 @@ func (b *BackendImpl) EthMsgsFromCosmosBlock(resBlock *tmrpctypes.ResultBlock, b
 	return result
 }
 
-func (b *BackendImpl) DoCall(args ethapi.TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash) (*txs.MsgEthereumTxResponse, error) {
+func (b *BackendImpl) DoCall(args ethapi.TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash) (*evmtypes.MsgEthereumTxResponse, error) {
 	blockNum, err := b.blockNumberFromCosmos(blockNrOrHash)
 	if err != nil {
 		return nil, err
@@ -459,7 +458,7 @@ func (b *BackendImpl) DoCall(args ethapi.TransactionArgs, blockNrOrHash rpc.Bloc
 		return nil, errors.New("header not found")
 	}
 
-	req := txs.EthCallRequest{
+	req := evmtypes.EthCallRequest{
 		Args:            bz,
 		GasCap:          b.RPCGasCap(),
 		ProposerAddress: sdktypes.ConsAddress(header.Block.ProposerAddress),
@@ -583,7 +582,7 @@ func (b *BackendImpl) processBlock(
 		}
 		txGasUsed := uint64(eachTendermintTxResult.GasUsed) // #nosec G701
 		for _, msg := range tx.GetMsgs() {
-			ethMsg, ok := msg.(*txs.MsgEthereumTx)
+			ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
 			if !ok {
 				continue
 			}

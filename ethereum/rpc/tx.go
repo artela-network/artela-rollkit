@@ -23,7 +23,6 @@ import (
 	rpctypes "github.com/artela-network/artela-rollkit/ethereum/rpc/types"
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/utils"
 	"github.com/artela-network/artela-rollkit/ethereum/types"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -31,7 +30,7 @@ import (
 
 func (b *BackendImpl) SendTx(ctx context.Context, signedTx *ethtypes.Transaction) error {
 	// verify the ethereum tx
-	ethereumTx := &txs.MsgEthereumTx{}
+	ethereumTx := &evmtypes.MsgEthereumTx{}
 	if err := ethereumTx.FromEthereumTx(signedTx); err != nil {
 		b.logger.Error("transaction converting failed", "error", err.Error())
 		return err
@@ -43,7 +42,7 @@ func (b *BackendImpl) SendTx(ctx context.Context, signedTx *ethtypes.Transaction
 	}
 
 	// Query params to use the EVM denomination
-	res, err := b.queryClient.QueryClient.Params(b.ctx, &txs.QueryParamsRequest{})
+	res, err := b.queryClient.QueryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
 		b.logger.Error("failed to query evm params", "error", err.Error())
 		return err
@@ -97,7 +96,7 @@ func (b *BackendImpl) GetTransaction(ctx context.Context, txHash common.Hash) (*
 	}
 
 	// the `res.MsgIndex` is inferred from tx index, should be within the bound.
-	msg, ok := tx.GetMsgs()[res.MsgIndex].(*txs.MsgEthereumTx)
+	msg, ok := tx.GetMsgs()[res.MsgIndex].(*evmtypes.MsgEthereumTx)
 	if !ok {
 		return nil, errors.New("invalid ethereum tx")
 	}
@@ -213,7 +212,7 @@ func (b *BackendImpl) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) 
 	// fallback to tendermint tx indexer
 	query := fmt.Sprintf("%s.%s='%s'", evmtypes.TypeMsgEthereumTx, evmtypes.AttributeKeyEthereumTxHash, hash.Hex())
 	txResult, err := b.queryCosmosTxIndexer(query, func(txs *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
-		return txs.GetTxByHash(hash)
+		return evmtypes.GetTxByHash(hash)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("GetTxByEthHash %s, %w", hash.Hex(), err)
@@ -237,7 +236,7 @@ func (b *BackendImpl) GetTransactionReceipt(ctx context.Context, hash common.Has
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode tx: %w", err)
 	}
-	ethMsg := tx.GetMsgs()[res.MsgIndex].(*txs.MsgEthereumTx)
+	ethMsg := tx.GetMsgs()[res.MsgIndex].(*evmtypes.MsgEthereumTx)
 
 	txData, err := evmtypes.UnpackTxData(ethMsg.Data)
 	if err != nil {
@@ -315,7 +314,7 @@ func (b *BackendImpl) GetTransactionReceipt(ctx context.Context, hash common.Has
 		receipt["contractAddress"] = crypto.CreateAddress(common.HexToAddress(res.Sender), txData.GetNonce())
 	}
 
-	if dynamicTx, ok := txData.(*txs.DynamicFeeTx); ok {
+	if dynamicTx, ok := txData.(*evmtypes.DynamicFeeTx); ok {
 		baseFee, err := b.BaseFee(blockRes)
 		if err == nil {
 			receipt["effectiveGasPrice"] = hexutil.Big(*dynamicTx.EffectiveGasPrice(baseFee))
@@ -330,10 +329,10 @@ func (b *BackendImpl) queryCosmosTxIndexer(query string, txGetter func(*rpctypes
 	if err != nil {
 		return nil, err
 	}
-	if len(resTxs.Txs) == 0 {
+	if len(resevmtypes.Txs) == 0 {
 		return nil, errors.New("ethereum tx not found")
 	}
-	txResult := resTxs.Txs[0]
+	txResult := resevmtypes.Txs[0]
 	if !rpctypes.TxSuccessOrExceedsBlockGasLimit(&txResult.TxResult) {
 		return nil, errors.New("invalid ethereum tx")
 	}
@@ -406,7 +405,7 @@ func (b *BackendImpl) EstimateGas(ctx context.Context, args ethapi.TransactionAr
 		return 0, errors.New("header not found")
 	}
 
-	req := txs.EthCallRequest{
+	req := evmtypes.EthCallRequest{
 		Args:            bz,
 		GasCap:          b.RPCGasCap(),
 		ProposerAddress: sdktypes.ConsAddress(header.Block.ProposerAddress),

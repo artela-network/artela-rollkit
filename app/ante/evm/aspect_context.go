@@ -16,7 +16,7 @@ import (
 	"github.com/artela-network/artela-rollkit/x/evm/artela/provider"
 	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmmodule "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // CreateAspectRuntimeContextDecorator prepare the aspect runtime context
@@ -40,9 +40,9 @@ func NewAspectRuntimeContextDecorator(app *baseapp.BaseApp, ek interfaces.EVMKee
 // won't see the error message.
 func (aspd AspectRuntimeContextDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, simulate bool, next cosmos.AnteHandler) (newCtx cosmos.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*evmmodule.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmmodule.MsgEthereumTx)(nil))
 		}
 
 		// create a temporary state db for check tx use

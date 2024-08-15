@@ -39,18 +39,15 @@ func init() {
 // CONTRACT: Pubkeys are set in context for all signers before this decorator runs
 // CONTRACT: Tx must implement SigVerifiableTx interface
 type LegacyEip712SigVerificationDecorator struct {
-	ak              evmmodule.AccountKeeper
-	signModeHandler authsigning.SignModeHandler
+	ak evmmodule.AccountKeeper
 }
 
 // Deprecated: NewLegacyEip712SigVerificationDecorator creates a new LegacyEip712SigVerificationDecorator
 func NewLegacyEip712SigVerificationDecorator(
 	ak evmmodule.AccountKeeper,
-	signModeHandler authsigning.SignModeHandler,
 ) LegacyEip712SigVerificationDecorator {
 	return LegacyEip712SigVerificationDecorator{
-		ak:              ak,
-		signModeHandler: signModeHandler,
+		ak: ak,
 	}
 }
 
@@ -83,7 +80,10 @@ func (svd LegacyEip712SigVerificationDecorator) AnteHandle(ctx cosmos.Context,
 		return ctx, err
 	}
 
-	signerAddrs := sigTx.GetSigners()
+	signerAddrs, err := sigTx.GetSigners()
+	if err != nil {
+		return ctx, err
+	}
 
 	// EIP712 allows just one signature
 	if len(sigs) != 1 {
@@ -141,7 +141,7 @@ func (svd LegacyEip712SigVerificationDecorator) AnteHandle(ctx cosmos.Context,
 		return next(ctx, tx, simulate)
 	}
 
-	if err := VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, authSignTx); err != nil {
+	if err := VerifySignature(pubKey, signerData, sig.Data, authSignTx); err != nil {
 		errMsg := fmt.Errorf("signature verification failed; please verify account number (%d) and chain-id (%s): %w", accNum, chainID, err)
 		return ctx, errorsmod.Wrap(errortypes.ErrUnauthorized, errMsg.Error())
 	}
@@ -155,7 +155,6 @@ func VerifySignature(
 	pubKey cryptotypes.PubKey,
 	signerData authsigning.SignerData,
 	sigData signing.SignatureData,
-	_ authsigning.SignModeHandler,
 	tx authsigning.Tx,
 ) error {
 	switch data := sigData.(type) {
@@ -186,7 +185,7 @@ func VerifySignature(
 				Amount: tx.GetFee(),
 				Gas:    tx.GetGas(),
 			},
-			msgs, tx.GetMemo(), tx.GetTip(),
+			msgs, tx.GetMemo(),
 		)
 
 		signerChainID, err := artela.ParseChainID(signerData.ChainID)

@@ -7,7 +7,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/artela-network/artela-rollkit/app/interfaces"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
+	"github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // EthSigVerificationDecorator validates an ethereum signatures
@@ -31,9 +31,9 @@ func NewEthSigVerificationDecorator(app *baseapp.BaseApp, ek interfaces.EVMKeepe
 // won't see the error message.
 func (esvd EthSigVerificationDecorator) AnteHandle(ctx cosmos.Context, tx cosmos.Tx, simulate bool, next cosmos.AnteHandler) (newCtx cosmos.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*txs.MsgEthereumTx)
+		msgEthTx, ok := msg.(*types.MsgEthereumTx)
 		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*txs.MsgEthereumTx)(nil))
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*types.MsgEthereumTx)(nil))
 		}
 
 		ethTx := msgEthTx.AsTransaction()

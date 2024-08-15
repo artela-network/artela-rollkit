@@ -6,9 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/artela-network/artela/x/evm/artela/types"
 	"github.com/artela-network/aspect-core/context"
 	artelatypes "github.com/artela-network/aspect-core/types"
+
+	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 )
 
 type EnvContextFieldLoader func(sdkCtx sdk.Context, ethTxCtx *types.EthTxContext) proto.Message
@@ -165,7 +166,7 @@ func (c *EnvContext) ValueLoader(key string) ContextLoader {
 			return nil, nil
 		}
 
-		if strings.HasPrefix(key, "env.consensusParams.") && c.ctx.CosmosContext().ConsensusParams() == nil {
+		if strings.HasPrefix(key, "env.consensusParams.") {
 			// when it is in an eth call, we are not able to return env.consensusParams.* values
 			return nil, nil
 		}

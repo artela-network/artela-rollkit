@@ -28,6 +28,7 @@ import (
 	types2 "github.com/artela-network/artela-rollkit/ethereum/types"
 	"github.com/artela-network/artela-rollkit/ethereum/utils"
 	"github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 func (b *BackendImpl) Accounts() []common.Address {
@@ -154,7 +155,7 @@ func (b *BackendImpl) Sign(address common.Address, data hexutil.Bytes) (hexutil.
 	}
 
 	// Sign the requested hash with the wallet
-	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data)
+	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +260,7 @@ func (b *BackendImpl) GetBalance(address common.Address, blockNrOrHash rpc.Block
 		return nil, err
 	}
 
-	req := &txs.QueryBalanceRequest{
+	req := &evmtypes.QueryBalanceRequest{
 		Address: address.String(),
 	}
 
@@ -286,7 +287,7 @@ func (b *BackendImpl) GetBalance(address common.Address, blockNrOrHash rpc.Block
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
-func (b *BackendImpl) GetSender(msg *txs.MsgEthereumTx, chainID *big.Int) (from common.Address, err error) {
+func (b *BackendImpl) GetSender(msg *evmtypes.MsgEthereumTx, chainID *big.Int) (from common.Address, err error) {
 	if msg.From != "" {
 		return common.HexToAddress(msg.From), nil
 	}

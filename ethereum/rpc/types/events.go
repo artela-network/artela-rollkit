@@ -10,7 +10,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/artela-network/artela-rollkit/ethereum/types"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -77,7 +76,7 @@ type ParsedTxs struct {
 
 // ParseTxResult parse eth txs infos from cosmos-sdk events.
 // It supports two event formats, the formats are described in the comments of the format constants.
-func ParseTxResult(result *abci.ResponseDeliverTx, tx sdk.Tx) (*ParsedTxs, error) {
+func ParseTxResult(result *abci.ExecTxResult, tx sdk.Tx) (*ParsedTxs, error) {
 	format := eventFormatUnknown
 	// the index of current ethereum_tx event in format 1 or the second part of format 2
 	eventIndex := -1
@@ -167,7 +166,7 @@ func ParseTxResult(result *abci.ResponseDeliverTx, tx sdk.Tx) (*ParsedTxs, error
 			p.Txs[i].Failed = true
 
 			// replace gasUsed with gasLimit because that's what's actually deducted.
-			gasLimit := tx.GetMsgs()[i].(*txs.MsgEthereumTx).GetGas()
+			gasLimit := tx.GetMsgs()[i].(*evmtypes.MsgEthereumTx).GetGas()
 			p.Txs[i].GasUsed = gasLimit
 		}
 	}

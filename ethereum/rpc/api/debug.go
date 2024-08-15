@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	evmsupport "github.com/artela-network/artela-rollkit/x/evm/txs/support"
+	evmsupport "github.com/artela-network/artela-rollkit/x/evm/types"
 
 	evmtxs "github.com/artela-network/artela-rollkit/x/evm/txs"
 )

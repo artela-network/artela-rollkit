@@ -6,13 +6,12 @@ import (
 	"path"
 	"time"
 
+	"cosmossdk.io/store/pruning/types"
 	"github.com/spf13/viper"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/strings"
-	clientflags "github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server/config"
-	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -205,14 +204,13 @@ func DefaultServerConfig() *config.Config {
 		BaseConfig: config.BaseConfig{
 			MinGasPrices:        "",
 			InterBlockCache:     true,
-			Pruning:             pruningtypes.PruningOptionCustom,
+			Pruning:             types.PruningOptionCustom,
 			PruningKeepRecent:   "2",
 			PruningInterval:     "10",
 			MinRetainBlocks:     0,
 			IndexEvents:         make([]string, 0),
 			IAVLCacheSize:       781250,
 			IAVLDisableFastNode: false,
-			IAVLLazyLoading:     false,
 			AppDBBackend:        "",
 		},
 		Telemetry: telemetry.Config{
@@ -233,38 +231,12 @@ func DefaultServerConfig() *config.Config {
 			MaxRecvMsgSize: config.DefaultGRPCMaxRecvMsgSize,
 			MaxSendMsgSize: config.DefaultGRPCMaxSendMsgSize,
 		},
-		Rosetta: config.RosettaConfig{
-			Enable:              false,
-			Address:             ":8080",
-			Blockchain:          "app",
-			Network:             "network",
-			Retries:             3,
-			Offline:             false,
-			EnableFeeSuggestion: false,
-			GasToSuggest:        clientflags.DefaultGasLimit,
-			DenomToSuggest:      "uatom",
-		},
 		GRPCWeb: config.GRPCWebConfig{
-			Enable:  true,
-			Address: config.DefaultGRPCWebAddress,
+			Enable: true,
 		},
 		StateSync: config.StateSyncConfig{
 			SnapshotInterval:   2000, // creating snapshot every 2000 blocks
 			SnapshotKeepRecent: 5,
-		},
-		Store: config.StoreConfig{
-			Streamers: []string{},
-		},
-		Streamers: config.StreamersConfig{
-			File: config.FileStreamerConfig{
-				Keys:            []string{"*"},
-				WriteDir:        "",
-				OutputMetadata:  true,
-				StopNodeOnError: true,
-				// NOTICE: The default config doesn't protect the streamer data integrity
-				// in face of system crash.
-				Fsync: false,
-			},
 		},
 		Mempool: config.MempoolConfig{
 			MaxTxs: 5_000,

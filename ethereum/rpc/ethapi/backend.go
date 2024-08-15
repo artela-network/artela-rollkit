@@ -14,10 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/artela-network/artela-rollkit-evm/vm"
+	"github.com/artela-network/artela-evm/vm"
 
 	rpctypes "github.com/artela-network/artela-rollkit/ethereum/rpc/types"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // Backend interface provides the common API services (that are provided by
@@ -59,7 +59,7 @@ type Backend interface {
 	RPCTxFeeCap() float64
 	UnprotectedAllowed() bool
 	EstimateGas(ctx context.Context, args TransactionArgs, blockNrOrHash *rpc.BlockNumberOrHash) (hexutil.Uint64, error)
-	DoCall(args TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash) (*txs.MsgEthereumTxResponse, error)
+	DoCall(args TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash) (*evmtypes.MsgEthereumTxResponse, error)
 
 	ChainConfig() *params.ChainConfig
 	Engine() consensus.Engine

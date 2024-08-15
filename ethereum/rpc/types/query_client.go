@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 
-	evmtypes "github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 	feetypes "github.com/artela-network/artela-rollkit/x/fee/types"
 )
 

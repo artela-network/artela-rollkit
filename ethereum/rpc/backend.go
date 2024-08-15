@@ -38,7 +38,6 @@ import (
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/utils"
 	"github.com/artela-network/artela-rollkit/ethereum/server/config"
 	ethereumtypes "github.com/artela-network/artela-rollkit/ethereum/types"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 	feetypes "github.com/artela-network/artela-rollkit/x/fee/types"
 )
@@ -165,7 +164,7 @@ func (b *BackendImpl) ChainConfig() *params.ChainConfig {
 }
 
 func (b *BackendImpl) chainConfig() (*params.ChainConfig, error) {
-	params, err := b.queryClient.Params(b.ctx, &txs.QueryParamsRequest{})
+	params, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
 		b.logger.Info("queryClient.Params failed", err)
 		return nil, err
@@ -373,13 +372,13 @@ func (b *BackendImpl) ClientVersion() string {
 
 func (b *BackendImpl) BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, error) {
 	// return BaseFee if London hard fork is activated and feemarket is enabled
-	res, err := b.queryClient.BaseFee(rpctypes.ContextWithHeight(blockRes.Height), &txs.QueryBaseFeeRequest{})
+	res, err := b.queryClient.BaseFee(rpctypes.ContextWithHeight(blockRes.Height), &evmtypes.QueryBaseFeeRequest{})
 	if err != nil || res.BaseFee == nil {
 		// we can't tell if it's london HF not enabled or the state is pruned,
 		// in either case, we'll fallback to parsing from begin blocker event,
 		// faster to iterate reversely
-		for i := len(blockRes.BeginBlockEvents) - 1; i >= 0; i-- {
-			evt := blockRes.BeginBlockEvents[i]
+		for i := len(blockRes.FinalizeBlockEvents) - 1; i >= 0; i-- {
+			evt := blockRes.FinalizeBlockEvents[i]
 			if evt.Type == feetypes.EventTypeFee && len(evt.Attributes) > 0 {
 				baseFee, err := strconv.ParseInt(evt.Attributes[0].Value, 10, 64)
 				if err == nil {
@@ -432,7 +431,7 @@ func (b *BackendImpl) GasPrice(ctx context.Context) (*hexutil.Big, error) {
 }
 
 func (b *BackendImpl) RPCMinGasPrice() int64 {
-	evmParams, err := b.queryClient.Params(b.ctx, &txs.QueryParamsRequest{})
+	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
 		return ethereumtypes.DefaultGasPrice
 	}
@@ -448,10 +447,10 @@ func (b *BackendImpl) RPCMinGasPrice() int64 {
 }
 
 // GlobalMinGasPrice returns MinGasPrice param from FeeMarket
-func (b *BackendImpl) GlobalMinGasPrice() (sdktypes.Dec, error) {
+func (b *BackendImpl) GlobalMinGasPrice() (sdkmath.LegacyDec, error) {
 	res, err := b.queryClient.FeeMarket.Params(b.ctx, &feetypes.QueryParamsRequest{})
 	if err != nil {
-		return sdktypes.ZeroDec(), err
+		return sdkmath.LegacyZeroDec(), err
 	}
 	return res.Params.MinGasPrice, nil
 }
@@ -500,7 +499,7 @@ func (b *BackendImpl) GetCoinbase() (sdktypes.AccAddress, error) {
 		return nil, err
 	}
 
-	req := &txs.QueryValidatorAccountRequest{
+	req := &evmtypes.QueryValidatorAccountRequest{
 		ConsAddress: sdktypes.ConsAddress(status.ValidatorInfo.Address).String(),
 	}
 
@@ -568,7 +567,7 @@ func (b *BackendImpl) GetProof(address common.Address, storageKeys []string, blo
 	}
 
 	// query EVM account
-	req := &txs.QueryAccountRequest{
+	req := &evmtypes.QueryAccountRequest{
 		Address: address.String(),
 	}
 
@@ -578,7 +577,7 @@ func (b *BackendImpl) GetProof(address common.Address, storageKeys []string, blo
 	}
 
 	// query account proofs
-	accountKey := authtypes.AddressStoreKey(sdktypes.AccAddress(address.Bytes()))
+	accountKey := append(authtypes.AddressStoreKeyPrefix, sdktypes.AccAddress(address.Bytes()).Bytes()...)
 	_, proof, err := b.queryClient.GetProof(clientCtx, authtypes.StoreKey, accountKey)
 	if err != nil {
 		return nil, err

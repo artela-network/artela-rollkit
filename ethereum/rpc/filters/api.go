@@ -16,10 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/artela-network/artela-rollkit/x/evm/txs/support"
-
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/types"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -170,7 +167,7 @@ func (api *PublicFilterAPI) NewPendingTransactionFilter() rpc.ID {
 				api.filtersMu.Lock()
 				if f, found := api.filters[pendingTxSub.ID()]; found {
 					for _, msg := range tx.GetMsgs() {
-						ethTx, ok := msg.(*txs.MsgEthereumTx)
+						ethTx, ok := msg.(*evmtypes.MsgEthereumTx)
 						if ok {
 							f.hashes = append(f.hashes, ethTx.AsTransaction().Hash())
 						}
@@ -234,7 +231,7 @@ func (api *PublicFilterAPI) NewPendingTransactions(ctx context.Context) (*rpc.Su
 				}
 
 				for _, msg := range tx.GetMsgs() {
-					ethTx, ok := msg.(*txs.MsgEthereumTx)
+					ethTx, ok := msg.(*evmtypes.MsgEthereumTx)
 					if ok {
 						_ = notifier.Notify(rpcSub.ID, ethTx.AsTransaction().Hash())
 					}

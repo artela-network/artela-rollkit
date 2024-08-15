@@ -19,6 +19,7 @@ import (
 	_ "cosmossdk.io/x/nft/module" // import for side-effects
 	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	"github.com/artela-network/artela/app/post"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -75,6 +76,9 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
+	"github.com/artela-network/artela-rollkit/app/ante"
+	"github.com/artela-network/artela-rollkit/app/ante/evm"
+	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
 	feemodulekeeper "github.com/artela-network/artela-rollkit/x/fee/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
@@ -449,6 +453,44 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 	// register app's OpenAPI routes.
 	docs.RegisterOpenAPIService(Name, apiSvr.Router)
+}
+
+func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+	options := ante.AnteDecorators{
+		Cdc:                    app.appCodec,
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: artela.HasDynamicFeeExtensionOption,
+		EvmKeeper:              app.EvmKeeper,
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		DistributionKeeper:     app.DistrKeeper,
+		FeeKeeper:              app.FeeKeeper,
+		SignModeHandler:        txConfig.SignModeHandler(),
+		SigGasConsumer:         ante.SigVerificationGasConsumer,
+		MaxTxGasWanted:         maxGasWanted,
+		TxFeeChecker:           evm.NewDynamicFeeChecker(app.EvmKeeper),
+
+		// TODO StakingKeeper:          app.StakingKeeper,
+		IBCKeeper: app.IBCKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	app.SetAnteHandler(ante.NewAnteHandler(app.BaseApp, options))
+}
+
+func (app *App) setPostHandler() {
+	options := post.PostDecorators{
+		EvmKeeper: app.EvmKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	app.SetPostHandler(post.NewPostHandler(app.BaseApp, options))
 }
 
 // GetMaccPerms returns a copy of the module account permissions

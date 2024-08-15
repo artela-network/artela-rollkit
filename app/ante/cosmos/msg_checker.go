@@ -5,7 +5,7 @@ import (
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	evmmodule "github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmmodule "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // RejectMessagesDecorator prevents invalid msg types from being executed

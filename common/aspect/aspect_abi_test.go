@@ -16,7 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"github.com/artela-network/artela/x/evm/artela/types"
+	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 )
 
 func TestAbi(t *testing.T) {

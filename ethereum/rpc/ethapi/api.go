@@ -25,11 +25,11 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/artela-network/artela-rollkit-evm/vm"
+	"github.com/artela-network/artela-evm/vm"
 
 	rpctypes "github.com/artela-network/artela-rollkit/ethereum/rpc/types"
 	ethtypes "github.com/artela-network/artela-rollkit/ethereum/types"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // EthereumAPI provides an API to access Ethereum related information.
@@ -794,7 +794,7 @@ func newRPCTransactionWithFrom(tx *types.Transaction, blockHash common.Hash, blo
 // NewTransactionFromMsg returns a txs that will serialize to the RPC
 // representation, with the given location metadata set (if available).
 func NewTransactionFromMsg(
-	msg *txs.MsgEthereumTx,
+	msg *evmtypes.MsgEthereumTx,
 	blockHash common.Hash,
 	blockNumber, index uint64,
 	baseFee *big.Int,

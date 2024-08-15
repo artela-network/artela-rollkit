@@ -14,8 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/artela-network/artela-rollkit/x/evm/txs/support"
-
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -38,43 +36,44 @@ func TxLogsFromEvents(events []abci.Event, msgIndex int) ([]*ethtypes.Log, error
 
 // ParseTxLogsFromEvent parse tx logs from one event
 func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
-	logs := make([]*support.Log, 0, len(event.Attributes))
+	logs := make([]*evmtypes.Log, 0, len(event.Attributes))
 	for _, attr := range event.Attributes {
 		if !bytes.Equal([]byte(attr.Key), []byte(evmtypes.AttributeKeyTxLog)) {
 			continue
 		}
 
-		var log support.Log
+		var log evmtypes.Log
 		if err := json.Unmarshal([]byte(attr.Value), &log); err != nil {
 			return nil, err
 		}
 
 		logs = append(logs, &log)
 	}
-	return support.LogsToEthereum(logs), nil
+	return evmtypes.LogsToEthereum(logs), nil
 }
 
 func BlockMaxGasFromConsensusParams(ctx context.Context, clientCtx client.Context, blockHeight int64) (int64, error) {
-	resConsParams, err := clientCtx.Client.ConsensusParams(ctx, &blockHeight)
+	//resConsParams, err := clientCtx.Client.ConsensusParams(ctx, &blockHeight)
 	defaultGasLimit := int64(^uint32(0)) // #nosec G701
-	if err != nil {
-		return defaultGasLimit, err
-	}
+	//if err != nil {
+	//	return defaultGasLimit, err
+	//}
+	//
+	//gasLimit := resConsParams.ConsensusParams.Block.MaxGas
+	//if gasLimit == -1 {
+	//	// Sets gas limit to max uint32 to not error with javascript dev tooling
+	//	// This -1 value indicating no block gas limit is set to max uint64 with geth hexutils
+	//	// which errors certain javascript dev tooling which only supports up to 53 bits
+	//	gasLimit = defaultGasLimit
+	//}
 
-	gasLimit := resConsParams.ConsensusParams.Block.MaxGas
-	if gasLimit == -1 {
-		// Sets gas limit to max uint32 to not error with javascript dev tooling
-		// This -1 value indicating no block gas limit is set to max uint64 with geth hexutils
-		// which errors certain javascript dev tooling which only supports up to 53 bits
-		gasLimit = defaultGasLimit
-	}
-
-	return gasLimit, nil
+	// FIXME: return default gas limit for now
+	return defaultGasLimit, nil
 }
 
 // ShouldIgnoreGasUsed returns true if the gasUsed in result should be ignored
 // workaround for issue: https://github.com/cosmos/cosmos-sdk/issues/10832
-func ShouldIgnoreGasUsed(res *abci.ResponseDeliverTx) bool {
+func ShouldIgnoreGasUsed(res *abci.ExecTxResult) bool {
 	return res.GetCode() == 11 && strings.Contains(res.GetLog(), "no block gas left to run tx: out of gas")
 }
 

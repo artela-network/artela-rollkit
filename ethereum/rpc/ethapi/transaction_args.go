@@ -16,8 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
-	types2 "github.com/artela-network/artela-rollkit/x/evm/types"
+	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // TransactionArgs represents the arguments to construct a new transaction
@@ -327,7 +326,7 @@ func (args *TransactionArgs) ToTransaction() *types.Transaction {
 	return args.toTransaction()
 }
 
-func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
+func (args *TransactionArgs) toEVMTransaction() *evmtypes.MsgEthereumTx {
 	var (
 		chainID, value, gasPrice, maxFeePerGas, maxPriorityFeePerGas sdkmath.Int
 		gas, nonce                                                   uint64
@@ -367,15 +366,15 @@ func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
 		to = args.To.Hex()
 	}
 
-	var data types2.TxData
+	var data evmtypes.TxData
 	switch {
 	case args.MaxFeePerGas != nil:
-		al := types2.AccessList{}
+		al := evmtypes.AccessList{}
 		if args.AccessList != nil {
-			al = types2.NewAccessList(args.AccessList)
+			al = evmtypes.NewAccessList(args.AccessList)
 		}
 
-		data = &txs.DynamicFeeTx{
+		data = &evmtypes.DynamicFeeTx{
 			To:        to,
 			ChainID:   &chainID,
 			Nonce:     nonce,
@@ -387,7 +386,7 @@ func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
 			Accesses:  al,
 		}
 	case args.AccessList != nil:
-		data = &txs.AccessListTx{
+		data = &evmtypes.AccessListTx{
 			To:       to,
 			ChainID:  &chainID,
 			Nonce:    nonce,
@@ -395,10 +394,10 @@ func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
 			GasPrice: &gasPrice,
 			Amount:   &value,
 			Data:     args.GetData(),
-			Accesses: types2.NewAccessList(args.AccessList),
+			Accesses: evmtypes.NewAccessList(args.AccessList),
 		}
 	default:
-		data = &txs.LegacyTx{
+		data = &evmtypes.LegacyTx{
 			To:       to,
 			Nonce:    nonce,
 			GasLimit: gas,
@@ -408,7 +407,7 @@ func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
 		}
 	}
 
-	anyData, err := types2.PackTxData(data)
+	anyData, err := evmtypes.PackTxData(data)
 	if err != nil {
 		return nil
 	}
@@ -417,7 +416,7 @@ func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
 		from = args.From.Hex()
 	}
 
-	msg := txs.MsgEthereumTx{
+	msg := evmtypes.MsgEthereumTx{
 		Data: anyData,
 		From: from,
 	}
@@ -425,7 +424,7 @@ func (args *TransactionArgs) toEVMTransaction() *txs.MsgEthereumTx {
 	return &msg
 }
 
-func (args *TransactionArgs) ToEVMTransaction() *txs.MsgEthereumTx {
+func (args *TransactionArgs) ToEVMTransaction() *evmtypes.MsgEthereumTx {
 	return args.toEVMTransaction()
 }
 

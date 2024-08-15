@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/artela-network/artela-evm/vm"
@@ -27,7 +28,7 @@ type EVMKeeper interface {
 	GetBalance(ctx cosmos.Context, addr common.Address) *big.Int
 	ResetTransientGasUsed(ctx cosmos.Context)
 	GetTxIndexTransient(ctx cosmos.Context) uint64
-	GetParams(ctx cosmos.Context) evmtypes.Params
+	GetParams(ctx context.Context) evmtypes.Params
 	GetChainConfig(ctx cosmos.Context) *params.ChainConfig
 	VerifySig(ctx cosmos.Context, tx *ethereum.Transaction) (common.Address, []byte, error)
 	EVMConfigFromCtx(ctx cosmos.Context) (*states.EVMConfig, error)
@@ -38,14 +39,14 @@ type EVMKeeper interface {
 
 type FeeKeeper interface {
 	GetParams(ctx cosmos.Context) (params feemodule.Params)
-	AddTransientGasWanted(ctx cosmos.Context, gasWanted uint64) (uint64, error)
+	AddTransientGasWanted(ctx context.Context, gasWanted uint64) (uint64, error)
 	GetBaseFeeEnabled(ctx cosmos.Context) bool
 }
 
 // DynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
 type DynamicFeeEVMKeeper interface {
 	ChainID() *big.Int
-	GetParams(ctx cosmos.Context) evmtypes.Params
+	GetParams(ctx context.Context) evmtypes.Params
 	GetBaseFee(ctx cosmos.Context, ethCfg *params.ChainConfig) *big.Int
 }
 

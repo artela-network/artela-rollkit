@@ -17,7 +17,10 @@ func ClaimStakingRewardsIfNecessary(
 	addr cosmos.AccAddress,
 	amount cosmos.Coins,
 ) error {
-	stakingDenom := stakingKeeper.BondDenom(ctx)
+	stakingDenom, err := stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	found, amountInStakingDenom := amount.Find(stakingDenom)
 	if !found {
 		return errortypes.ErrInsufficientFee.Wrapf(
@@ -69,7 +72,11 @@ func ClaimSufficientStakingRewards(
 		cacheCtx,
 		addr,
 		func(_ int64, delegation stakingmodule.DelegationI) (stop bool) {
-			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, delegation.GetValidatorAddr())
+			valAddress, err := cosmos.ValAddressFromBech32(delegation.GetValidatorAddr())
+			if err != nil {
+				return true
+			}
+			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, valAddress)
 			if err != nil {
 				return true
 			}

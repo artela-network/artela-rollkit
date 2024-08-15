@@ -207,8 +207,8 @@ cosmossdk.io/client/v2 v2.0.0-beta.1 h1:XkHh1lhrLYIT9zKl7cIOXUXg2hdhtjTPBUfqERNA
 cosmossdk.io/client/v2 v2.0.0-beta.1/go.mod h1:JEUSu9moNZQ4kU3ir1DKD5eU4bllmAexrGWjmb9k8qU=
 cosmossdk.io/collections v0.4.0 h1:PFmwj2W8szgpD5nOd8GWH6AbYNi1f2J6akWXJ7P5t9s=
 cosmossdk.io/collections v0.4.0/go.mod h1:oa5lUING2dP+gdDquow+QjlF45eL1t4TJDypgGd+tv0=
-cosmossdk.io/core v0.12.0 h1:aFuvkG6eDv0IQC+UDjx86wxNWVAxdCFk7OABJ1Vh4RU=
-cosmossdk.io/core v0.12.0/go.mod h1:LaTtayWBSoacF5xNzoF8tmLhehqlA9z1SWiPuNC6X1w=
+cosmossdk.io/core v0.11.0 h1:vtIafqUi+1ZNAE/oxLOQQ7Oek2n4S48SWLG8h/+wdbo=
+cosmossdk.io/core v0.11.0/go.mod h1:LaTtayWBSoacF5xNzoF8tmLhehqlA9z1SWiPuNC6X1w=
 cosmossdk.io/depinject v1.0.0-alpha.4 h1:PLNp8ZYAMPTUKyG9IK2hsbciDWqna2z1Wsl98okJopc=
 cosmossdk.io/depinject v1.0.0-alpha.4/go.mod h1:HeDk7IkR5ckZ3lMGs/o91AVUc7E596vMaOmslGFM3yU=
 cosmossdk.io/errors v1.0.1 h1:bzu+Kcr0kS/1DuPBtUFdWjzLqyUuCiyHjyJB6srBV/0=
@@ -335,6 +335,8 @@ github.com/artela-network/aspect-core v0.4.8-rc8 h1:7KSb/NcD3HhOTirVg7mVPmknxSO1
 github.com/artela-network/aspect-core v0.4.8-rc8/go.mod h1:hve/4ibuIgt0HaAQrBYez1O8BQGceK8O8rGeyHoMAwg=
 github.com/artela-network/aspect-runtime v0.4.8-rc8 h1:48dbWs+4wUAL52U6JUN+hPQ7u7lDTkajoI0EcZYtwL4=
 github.com/artela-network/aspect-runtime v0.4.8-rc8/go.mod h1:GiDB2+LUbl2b2Z8+v/83LFbUKs5DqQ3ACxLUWY8zMdU=
+github.com/artela-network/wasmtime-go/v20 v20.0.3 h1:A4/KrrCQiXhDibc3bUlvD7vzohV4saWiAA3MIFz11Yo=
+github.com/artela-network/wasmtime-go/v20 v20.0.3/go.mod h1:Va362hmt7aqwyb2Vu73yHbmx6NkSvGmvHOzJa2xMECQ=
 github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a/go.mod h1:DAHtR1m6lCRdSC2Tm3DSWRPvIPr6xNKyeHdqDQSQT+A=
 github.com/ashanbrown/forbidigo v1.3.0/go.mod h1:vVW7PEdqEFqapJe95xHkTfB1+XvZXBFg8t0sG2FIxmI=
 github.com/ashanbrown/makezero v1.1.1/go.mod h1:i1bJLCRSCHOcOa9Y6MyF2FTfMZMFdHvxKHxgO5Z1axI=
@@ -402,8 +404,6 @@ github.com/bufbuild/protoyaml-go v0.1.8 h1:X9QDLfl9uEllh4gsXUGqPanZYCOKzd92uniRt
 github.com/bufbuild/protoyaml-go v0.1.8/go.mod h1:R8vE2+l49bSiIExP4VJpxOXleHE+FDzZ6HVxr3cYunw=
 github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7hK1yFx9hf58LP0zeX7UjIGs20ufpu3evjr+s=
 github.com/butuzov/ireturn v0.1.1/go.mod h1:Wh6Zl3IMtTpaIKbmwzqi6olnM9ptYQxxVacMsOEFPoc=
-github.com/bytecodealliance/wasmtime-go/v20 v20.0.0 h1:xO8EMdztxRALMRoru7WCIlr10co225tFFUoJ/Ygzdv4=
-github.com/bytecodealliance/wasmtime-go/v20 v20.0.0/go.mod h1:Va362hmt7aqwyb2Vu73yHbmx6NkSvGmvHOzJa2xMECQ=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/casbin/casbin/v2 v2.37.0/go.mod h1:vByNa/Fchek0KZUgG5wEsl7iFsiviAYKRtgrQfcJqHg=
 github.com/celestiaorg/go-header v0.6.2 h1:qgWyJQg+/x6k4QAfN1rPt2HXHZjQOmCqD0ct4dFBIZY=
@@ -472,12 +472,10 @@ github.com/cockroachdb/errors v1.11.1 h1:xSEW75zKaKCWzR3OfxXUxgrk/NtT4G1MiOv5lWZ
 github.com/cockroachdb/errors v1.11.1/go.mod h1:8MUxA3Gi6b25tYlFEBGLf+D8aISL+M4MIpiWMSNRfxw=
 github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b h1:r6VH0faHjZeQy818SGhaone5OnYfxFR/+AzdY3sf5aE=
 github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b/go.mod h1:Vz9DsVWQQhf3vs21MhPMZpMGSht7O/2vFW2xusFUVOs=
-github.com/cockroachdb/pebble v1.1.0 h1:pcFh8CdCIt2kmEpK0OIatq67Ln9uGDYY3d5XnE0LJG4=
-github.com/cockroachdb/pebble v1.1.0/go.mod h1:sEHm5NOXxyiAoKWhoFxT8xMgd/f3RA6qUqQ1BXKrh2E=
+github.com/cockroachdb/pebble v0.0.0-20230525220056-bb4fc9527b3b h1:LCs8gDhg6vt8A3dN7AEJxmCoETZ4qkySoVJVm3rcSJk=
+github.com/cockroachdb/pebble v0.0.0-20230525220056-bb4fc9527b3b/go.mod h1:TkdVsGYRqtULUppt2RbC+YaKtTHnHoWa2apfFrSKABw=
 github.com/cockroachdb/redact v1.1.5 h1:u1PMllDkdFfPWaNGMyLD1+so+aq3uUItthCFqzwPJ30=
 github.com/cockroachdb/redact v1.1.5/go.mod h1:BVNblN9mBWFyMyqK1k3AAiSxhvhfK2oOZZ2lK+dpvRg=
-github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 h1:zuQyyAKVxetITBuuhv3BI9cMrmStnpT18zmgmTxunpo=
-github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06/go.mod h1:7nc4anLGjupUW/PeY5qiNYsdNXj7zopG+eqsS7To5IQ=
 github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd/go.mod h1:sE/e/2PUdi/liOCUjSTXgM1o87ZssimdTWN964YiIeI=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0 h1:jpVIwLcPoOeCR6o1tU+Xv7r5bMONNbHU7MuEHboiFuA=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0/go.mod h1:eq7W2TMRH22GTW0N0beDnN931DW0/WOI1R2sdHNHG4c=

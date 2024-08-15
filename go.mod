@@ -5,18 +5,18 @@ go 1.22
 toolchain go1.22.6
 
 replace (
-	// TODO artela: btcd/btcec become not valid for 0.23.x, need to dig into it
-	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.3
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.3 // TODO artela: btcd/btcec become not valid for 0.23.x, need to dig into it
+	github.com/bytecodealliance/wasmtime-go/v20 => github.com/artela-network/wasmtime-go/v20 v20.0.3
+	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230525220056-bb4fc9527b3b
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
-	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
 require (
 	cosmossdk.io/api v0.7.5
 	cosmossdk.io/client/v2 v2.0.0-beta.1
-	cosmossdk.io/core v0.12.0
+	cosmossdk.io/core v0.11.0
 	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.3.1
@@ -122,7 +122,6 @@ require (
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v1.1.0 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
-	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/coinbase/rosetta-sdk-go/types v1.0.0 // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect

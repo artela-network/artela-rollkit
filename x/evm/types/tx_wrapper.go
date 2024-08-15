@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	signing2 "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -19,10 +20,11 @@ import (
 	cmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
 	ethereum "github.com/ethereum/go-ethereum/core/types"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/protoadapt"
 
-	artela "github.com/artela-network/artela/ethereum/types"
-	"github.com/artela-network/artela/ethereum/utils"
-	"github.com/artela-network/artela/x/evm/types"
+	artela "github.com/artela-network/artela-rollkit/ethereum/types"
+	"github.com/artela-network/artela-rollkit/ethereum/utils"
 )
 
 var (
@@ -162,10 +164,10 @@ func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.
 }
 
 // Route returns the route value of an MsgEthereumTx.
-func (msg MsgEthereumTx) Route() string { return types.RouterKey }
+func (msg MsgEthereumTx) Route() string { return RouterKey }
 
 // Type returns the type value of an MsgEthereumTx.
-func (msg MsgEthereumTx) Type() string { return types.TypeMsgEthereumTx }
+func (msg MsgEthereumTx) Type() string { return TypeMsgEthereumTx }
 
 // ValidateBasic implements the cosmos.Msg interface. It performs basic validation
 // checks of a Transaction. If returns an error if validation fails.
@@ -177,7 +179,7 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 	}
 
 	// Validate Size_ field, should be kept empty
-	if msg.Size_ != 0 {
+	if msg.Size() != 0 {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "txs size is deprecated")
 	}
 
@@ -190,12 +192,12 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 
 	// prevent txs with 0 gas to fill up the mempool
 	if gas == 0 {
-		return errorsmod.Wrap(types.ErrInvalidGasLimit, "gas limit must not be zero")
+		return errorsmod.Wrap(ErrInvalidGasLimit, "gas limit must not be zero")
 	}
 
 	// prevent gas limit from overflow
 	if g := new(big.Int).SetUint64(gas); !g.IsInt64() {
-		return errorsmod.Wrap(types.ErrGasOverflow, "gas limit must be less than math.MaxInt64")
+		return errorsmod.Wrap(ErrGasOverflow, "gas limit must be less than math.MaxInt64")
 	}
 
 	if err := txData.Validate(); err != nil {
@@ -236,7 +238,7 @@ func (msg *MsgEthereumTx) SignEthereumTx(ethSigner ethereum.Signer, keyringSigne
 	tx := msg.AsTransaction()
 	txHash := ethSigner.Hash(tx)
 
-	sig, _, err := keyringSigner.SignByAddress(from, txHash.Bytes())
+	sig, _, err := keyringSigner.SignByAddress(from, txHash.Bytes(), signing2.SignMode_SIGN_MODE_DIRECT)
 	if err != nil {
 		return nil, err
 	}
@@ -353,6 +355,10 @@ func (msg *MsgEthereumTx) FromEthereumTx(tx *ethereum.Transaction) error {
 	msg.Data = anyTxData
 	msg.Hash = tx.Hash().Hex()
 	return nil
+}
+
+func (m *MsgEthereumTx) GetMsgsV2() ([]proto.Message, error) {
+	return []proto.Message{protoadapt.MessageV2Of(m)}, nil
 }
 
 func NewTxDataFromTx(tx *ethereum.Transaction) (TxData, error) {

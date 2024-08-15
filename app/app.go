@@ -19,7 +19,6 @@ import (
 	_ "cosmossdk.io/x/nft/module" // import for side-effects
 	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
-	"github.com/artela-network/artela/app/post"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -75,6 +74,8 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+
+	"github.com/artela-network/artela-rollkit/app/post"
 
 	"github.com/artela-network/artela-rollkit/app/ante"
 	"github.com/artela-network/artela-rollkit/app/ante/evm"
@@ -461,7 +462,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
 		ExtensionOptionChecker: artela.HasDynamicFeeExtensionOption,
-		EvmKeeper:              app.EvmKeeper,
+		EvmKeeper:              &app.EvmKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		DistributionKeeper:     app.DistrKeeper,
 		FeeKeeper:              app.FeeKeeper,
@@ -483,7 +484,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 
 func (app *App) setPostHandler() {
 	options := post.PostDecorators{
-		EvmKeeper: app.EvmKeeper,
+		EvmKeeper: &app.EvmKeeper,
 	}
 
 	if err := options.Validate(); err != nil {

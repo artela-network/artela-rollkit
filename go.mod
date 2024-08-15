@@ -32,7 +32,6 @@ require (
 	cosmossdk.io/x/upgrade v0.1.1
 	github.com/BurntSushi/toml v1.4.0
 	github.com/andybalholm/brotli v1.1.0
-	github.com/artela-network/artela v0.4.8-rc8
 	github.com/artela-network/artela-evm v0.4.8-rc8
 	github.com/artela-network/aspect-core v0.4.8-rc8
 	github.com/artela-network/aspect-runtime v0.4.8-rc8

@@ -2,57 +2,20 @@ package server
 
 import (
 	"fmt"
-	"io"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-
-	dbm "github.com/cometbft/cometbft-db"
-	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/version"
 	ethlog "github.com/ethereum/go-ethereum/log"
 
 	ethrpc "github.com/artela-network/artela-rollkit/ethereum/rpc"
 	"github.com/artela-network/artela-rollkit/ethereum/server/config"
 )
-
-// add server commands
-func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator types.AppCreator, appExport types.AppExporter, addStartFlags types.ModuleInitFlags) {
-	tendermintCmd := &cobra.Command{
-		Use:     "tendermint",
-		Aliases: []string{"comet", "cometbft"},
-		Short:   "Tendermint subcommands",
-	}
-
-	tendermintCmd.AddCommand(
-		sdkserver.ShowNodeIDCmd(),
-		sdkserver.ShowValidatorCmd(),
-		sdkserver.ShowAddressCmd(),
-		sdkserver.VersionCmd(),
-		tmcmd.ResetAllCmd,
-		tmcmd.ResetStateCmd,
-		sdkserver.BootstrapStateCmd(appCreator),
-	)
-
-	startCmd := StartCmd(appCreator, defaultNodeHome)
-	addStartFlags(startCmd)
-
-	rootCmd.AddCommand(
-		startCmd,
-		tendermintCmd,
-		sdkserver.ExportCmd(appExport, defaultNodeHome),
-		version.NewVersionCommand(),
-		sdkserver.NewRollbackCmd(appCreator, defaultNodeHome),
-	)
-}
 
 // CreateJSONRPC starts the JSON-RPC server
 func CreateJSONRPC(ctx *sdkserver.Context,
@@ -115,17 +78,6 @@ func CreateJSONRPC(ctx *sdkserver.Context,
 func openDB(rootDir string, backendType dbm.BackendType) (dbm.DB, error) {
 	dataDir := filepath.Join(rootDir, "data")
 	return dbm.NewDB("application", backendType, dataDir)
-}
-
-func openTraceWriter(traceWriterFile string) (w io.WriteCloser, err error) {
-	if traceWriterFile == "" {
-		return
-	}
-	return os.OpenFile(
-		traceWriterFile,
-		os.O_WRONLY|os.O_APPEND|os.O_CREATE,
-		0o666,
-	)
 }
 
 func ConnectTmWS(tmRPCAddr, tmEndpoint string, logger ethlog.Logger) *rpcclient.WSClient {

@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"cosmossdk.io/math"
 	cmtcfg "github.com/cometbft/cometbft/config"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/artela-network/artela-rollkit/app"
+	"github.com/artela-network/artela-rollkit/ethereum/server/config"
+	artelatypes "github.com/artela-network/artela-rollkit/ethereum/types"
 )
 
 func initSDKConfig() {
@@ -21,7 +24,23 @@ func initSDKConfig() {
 	config.SetBech32PrefixForAccount(app.AccountAddressPrefix, accountPubKeyPrefix)
 	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
 	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
+	config.SetCoinType(artelatypes.Bip44CoinType)
+	config.SetPurpose(sdk.Purpose)                        // Shared
+	config.SetFullFundraiserPath(artelatypes.BIP44HDPath) //nolint: staticcheck
 	config.Seal()
+
+	registerDenoms()
+}
+
+// RegisterDenoms registers the base and display denominations to the SDK.
+func registerDenoms() {
+	if err := sdk.RegisterDenom(app.DisplayDenom, math.LegacyOneDec()); err != nil {
+		panic(err)
+	}
+
+	if err := sdk.RegisterDenom(app.BaseDenom, math.LegacyNewDecWithPrec(1, artelatypes.BaseDenomUnit)); err != nil {
+		panic(err)
+	}
 }
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -42,6 +61,11 @@ func initAppConfig() (string, interface{}) {
 	// The following code snippet is just for reference.
 	type CustomAppConfig struct {
 		serverconfig.Config `mapstructure:",squash"`
+
+		EVM     config.EVMConfig     `mapstructure:"evm"`
+		JSONRPC config.JSONRPCConfig `mapstructure:"json-rpc"`
+		TLS     config.TLSConfig     `mapstructure:"tls"`
+		Aspect  config.AspectConfig  `mapstructure:"aspect"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -63,10 +87,14 @@ func initAppConfig() (string, interface{}) {
 	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
 
 	customAppConfig := CustomAppConfig{
-		Config: *srvCfg,
+		Config:  *srvCfg,
+		EVM:     *config.DefaultEVMConfig(),
+		JSONRPC: *config.DefaultJSONRPCConfig(),
+		TLS:     *config.DefaultTLSConfig(),
+		Aspect:  *config.DefaultAspectConfig(),
 	}
 
-	customAppTemplate := serverconfig.DefaultConfigTemplate
+	customAppTemplate := serverconfig.DefaultConfigTemplate + config.DefaultConfigTemplate
 	// Edit the default template file
 	//
 	// customAppTemplate := serverconfig.DefaultConfigTemplate + `

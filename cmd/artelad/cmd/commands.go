@@ -24,9 +24,11 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/artela-network/artela-rollkit/app"
+	eth "github.com/artela-network/artela-rollkit/ethereum/server/flags"
 
-	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
 	rollconf "github.com/rollkit/rollkit/config"
+
+	rollserv "github.com/artela-network/artela-rollkit/ethereum/server"
 )
 
 func initRootCmd(
@@ -49,6 +51,7 @@ func initRootCmd(
 		server.StartCmdOptions{
 			AddFlags: func(cmd *cobra.Command) {
 				rollconf.AddFlags(cmd)
+				eth.AddEthereumServerFlags(cmd)
 				addModuleInitFlags(cmd)
 			},
 			StartCommandHandler: rollserv.StartHandler[servertypes.Application],

@@ -74,11 +74,13 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	"github.com/spf13/cast"
 
-	"github.com/artela-network/artela-rollkit/app/post"
+	srvflags "github.com/artela-network/artela-rollkit/ethereum/server/flags"
 
 	"github.com/artela-network/artela-rollkit/app/ante"
 	"github.com/artela-network/artela-rollkit/app/ante/evm"
+	"github.com/artela-network/artela-rollkit/app/post"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
 	feemodulekeeper "github.com/artela-network/artela-rollkit/x/fee/keeper"
@@ -88,8 +90,15 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "cosmos"
-	Name                 = "artela"
+	AccountAddressPrefix = "art"
+	Name                 = "artelad"
+)
+
+const (
+	// DisplayDenom defines the denomination displayed to users in client applications.
+	DisplayDenom = "art"
+	// BaseDenom defines artelad base denonm
+	BaseDenom = "aart"
 )
 
 var (
@@ -332,6 +341,37 @@ func New(
 	// 	voteExtHandler.SetHandlers(bApp)
 	// }
 
+	//kvStores := storetypes.NewKVStoreKeys(
+	//	authtypes.StoreKey, authz.ModuleName, banktypes.StoreKey, stakingmodule.StoreKey,
+	//	crisistypes.StoreKey, minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
+	//	govtypes.StoreKey, paramstypes.StoreKey, ibcexported.StoreKey, upgradetypes.StoreKey,
+	//	feegrant.StoreKey, evidencetypes.StoreKey, ibctransfertypes.StoreKey, icahosttypes.StoreKey,
+	//	capabilitytypes.StoreKey, group.StoreKey, icacontrollertypes.StoreKey, consensustypes.StoreKey,
+	//	evmmoduletypes.StoreKey,
+	//	feemoduletypes.StoreKey,
+	//	// this line is used by starport scaffolding # stargate/app/storeKey
+	//)
+	//
+	//for _, key := range kvStores {
+	//	if err := app.RegisterStores(key); err != nil {
+	//		panic(err)
+	//	}
+	//}
+	//
+	//tkeys := storetypes.NewTransientStoreKeys(paramstypes.TStoreKey, evmmoduletypes.TransientKey, feemoduletypes.TransientStoreKey)
+	//for _, key := range tkeys {
+	//	if err := app.RegisterStores(key); err != nil {
+	//		panic(err)
+	//	}
+	//}
+	//
+	//memKeys := storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	//for _, key := range memKeys {
+	//	if err := app.RegisterStores(key); err != nil {
+	//		panic(err)
+	//	}
+	//}
+
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
 	// Register legacy modules
@@ -343,10 +383,6 @@ func New(
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		return nil, err
 	}
-
-	/****  Module Options ****/
-
-	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
@@ -367,6 +403,10 @@ func New(
 	// 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
 	// 	return app.App.InitChainer(ctx, req)
 	// })
+
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
+	app.setAnteHandler(app.txConfig, maxGasWanted)
+	app.setPostHandler()
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, err
@@ -471,7 +511,6 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		MaxTxGasWanted:         maxGasWanted,
 		TxFeeChecker:           evm.NewDynamicFeeChecker(app.EvmKeeper),
 
-		// TODO StakingKeeper:          app.StakingKeeper,
 		IBCKeeper: app.IBCKeeper,
 	}
 

@@ -46,6 +46,7 @@ type (
 		subSpace              types.ParamSubspace
 		blockGetter           types.BlockGetter
 		logger                log.Logger
+		ChainIDGetter         types.ChainIDGetter
 
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
@@ -117,8 +118,8 @@ func NewKeeper(
 		aspectRuntimeContext:  aspectRuntimeContext,
 		aspect:                aspect,
 		VerifySigCache:        new(sync.Map),
+		ChainIDGetter:         chainIDGetter,
 	}
-	k.WithChainID(chainIDGetter())
 
 	djpm.NewAspect(aspect, common.WrapLogger(k.logger.With("module", "aspect")))
 	api.InitAspectGlobals(&k)
@@ -158,8 +159,9 @@ func (k Keeper) GetClientContext() client.Context {
 	return k.clientContext
 }
 
-// WithChainID sets the chain id to the local variable in the keeper
-func (k *Keeper) WithChainID(chainId string) {
+// InitChainID sets the chain id to the local variable in the keeper
+func (k *Keeper) InitChainID() {
+	chainId := k.ChainIDGetter()
 	if k.eip155ChainID != nil {
 		return
 	}
@@ -178,6 +180,9 @@ func (k *Keeper) WithChainID(chainId string) {
 
 // ChainID returns the EIP155 chain ID for the EVM context
 func (k Keeper) ChainID() *big.Int {
+	if k.eip155ChainID == nil {
+		k.InitChainID()
+	}
 	return k.eip155ChainID
 }
 

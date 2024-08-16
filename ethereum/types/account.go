@@ -4,13 +4,14 @@ import (
 	"bytes"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
 var (
-	_ authtypes.AccountI                 = (*EthAccount)(nil)
+	_ sdk.AccountI                       = (*EthAccount)(nil)
 	_ EthAccountI                        = (*EthAccount)(nil)
 	_ authtypes.GenesisAccount           = (*EthAccount)(nil)
 	_ codectypes.UnpackInterfacesMessage = (*EthAccount)(nil)
@@ -44,7 +45,7 @@ type EthAccountI interface {
 
 // ProtoAccount defines the prototype function for BaseAccount used for an
 // AccountKeeper.
-func ProtoAccount() authtypes.AccountI {
+func ProtoAccount() sdk.AccountI {
 	return &EthAccount{
 		BaseAccount: &authtypes.BaseAccount{},
 		CodeHash:    common.BytesToHash(emptyCodeHash).String(),

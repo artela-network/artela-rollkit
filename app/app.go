@@ -231,11 +231,19 @@ func New(
 				logger,
 
 				// Supply block height getter, required by evm keeper
-				types.BlockGetter(app.LastBlockHeight),
+				types.BlockGetter(func() int64 {
+					return app.LastBlockHeight()
+				}),
 
 				// Supply subspace params getter, required by fee and evm keeper
 				app.GetSubspace,
-				types.ChainIDGetter(app.ChainID),
+
+				types.ChainIDGetter(func() string {
+					return app.ChainID()
+				}),
+
+				// Supply eth account
+				artela.ProtoAccount,
 
 				// ADVANCED CONFIGURATION
 				//
@@ -308,69 +316,6 @@ func New(
 	); err != nil {
 		panic(err)
 	}
-
-	// Below we could construct and set an application specific mempool and
-	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
-	// already set in the SDK's BaseApp, this shows an example of how to override
-	// them.
-	//
-	// Example:
-	//
-	// app.App = appBuilder.Build(...)
-	// nonceMempool := mempool.NewSenderNonceMempool()
-	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
-	//
-	// app.App.BaseApp.SetMempool(nonceMempool)
-	// app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
-	//
-	// Alternatively, you can construct BaseApp options, append those to
-	// baseAppOptions and pass them to the appBuilder.
-	//
-	// Example:
-	//
-	// prepareOpt = func(app *baseapp.BaseApp) {
-	// 	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app)
-	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// }
-	// baseAppOptions = append(baseAppOptions, prepareOpt)
-	//
-	// create and set vote extension handler
-	// voteExtOp := func(bApp *baseapp.BaseApp) {
-	// 	voteExtHandler := NewVoteExtensionHandler()
-	// 	voteExtHandler.SetHandlers(bApp)
-	// }
-
-	//kvStores := storetypes.NewKVStoreKeys(
-	//	authtypes.StoreKey, authz.ModuleName, banktypes.StoreKey, stakingmodule.StoreKey,
-	//	crisistypes.StoreKey, minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-	//	govtypes.StoreKey, paramstypes.StoreKey, ibcexported.StoreKey, upgradetypes.StoreKey,
-	//	feegrant.StoreKey, evidencetypes.StoreKey, ibctransfertypes.StoreKey, icahosttypes.StoreKey,
-	//	capabilitytypes.StoreKey, group.StoreKey, icacontrollertypes.StoreKey, consensustypes.StoreKey,
-	//	evmmoduletypes.StoreKey,
-	//	feemoduletypes.StoreKey,
-	//	// this line is used by starport scaffolding # stargate/app/storeKey
-	//)
-	//
-	//for _, key := range kvStores {
-	//	if err := app.RegisterStores(key); err != nil {
-	//		panic(err)
-	//	}
-	//}
-	//
-	//tkeys := storetypes.NewTransientStoreKeys(paramstypes.TStoreKey, evmmoduletypes.TransientKey, feemoduletypes.TransientStoreKey)
-	//for _, key := range tkeys {
-	//	if err := app.RegisterStores(key); err != nil {
-	//		panic(err)
-	//	}
-	//}
-	//
-	//memKeys := storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
-	//for _, key := range memKeys {
-	//	if err := app.RegisterStores(key); err != nil {
-	//		panic(err)
-	//	}
-	//}
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 

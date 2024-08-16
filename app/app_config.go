@@ -187,6 +187,7 @@ var (
 		{Account: ibcfeetypes.ModuleName},
 		{Account: icatypes.ModuleName},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
+		{Account: evmmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
 	// blocked account addresses

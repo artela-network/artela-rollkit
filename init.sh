@@ -37,10 +37,10 @@ if [ -d "$folder_path" ]; then
   fi
 fi
 
-echo artela-rollkitd config set client keyring-backend $KEYRING
-artela-rollkitd config set client keyring-backend $KEYRING
 echo artela-rollkitd config set client chain-id $CHAINID
 artela-rollkitd config set client chain-id $CHAINID
+echo artela-rollkitd config set client keyring-backend $KEYRING
+artela-rollkitd config set client keyring-backend $KEYRING
 
 # if $KEY exists it should be deleted
 artela-rollkitd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
@@ -74,9 +74,9 @@ artela-rollkitd add-genesis-account $KEY 100000000000000000000000000aart --keyri
 artela-rollkitd add-genesis-account $KEY2 100000000000000000000000000aart --keyring-backend $KEYRING
 artela-rollkitd add-genesis-account $KEY3 100000000000000000000000000aart --keyring-backend $KEYRING
 artela-rollkitd add-genesis-account $KEY4 100000000000000000000000000aart --keyring-backend $KEYRING
-echo artela-rollkitd add-genesis-account $KEY 100000000000000000000000000aart --keyring-backend $KEYRING
 
 # Sign genesis transaction
+echo gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID
 artela-rollkitd gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID
 
 # Collect genesis tx

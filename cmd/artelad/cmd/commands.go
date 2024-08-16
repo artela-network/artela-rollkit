@@ -25,6 +25,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	_ "github.com/artela-network/artela-rollkit/ethereum/types"
+
 	"github.com/artela-network/artela-rollkit/app"
 	artclient "github.com/artela-network/artela-rollkit/client"
 	eth "github.com/artela-network/artela-rollkit/ethereum/server/flags"
@@ -41,13 +43,13 @@ func initRootCmd(
 ) {
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, genutiltypes.DefaultMessageValidator, address.NewBech32Codec(app.AccountAddressPrefix)),
+		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, genutiltypes.DefaultMessageValidator, address.NewBech32Codec(app.AccountAddressPrefix+"valoper")),
 		genutilcli.GenTxCmd(
 			basicManager,
 			txConfig,
 			banktypes.GenesisBalancesIterator{},
 			app.DefaultNodeHome,
-			address.NewBech32Codec(app.AccountAddressPrefix),
+			address.NewBech32Codec(app.AccountAddressPrefix+"valoper"),
 		),
 		genutilcli.ValidateGenesisCmd(basicManager),
 		debug.Cmd(),

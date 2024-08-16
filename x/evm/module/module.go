@@ -189,7 +189,6 @@ type ModuleInputs struct {
 	StakingKeeper types.StakingKeeper
 	FeeKeeper     types.FeeKeeper
 
-	SubSpace      types.ParamSubspace
 	BlockGetter   types.BlockGetter
 	ChainIDGetter types.ChainIDGetter
 }
@@ -215,7 +214,6 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.BankKeeper,
 		in.StakingKeeper,
 		in.FeeKeeper,
-		in.SubSpace,
 		in.BlockGetter,
 		in.ChainIDGetter,
 		in.Logger,

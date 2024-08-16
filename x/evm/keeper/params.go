@@ -15,7 +15,7 @@ func (k Keeper) GetParams(ctx context.Context) (params types.Params) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := store.Get(types.KeyPrefixParams)
 	if bz == nil {
-		return params
+		panic("evm params are not set")
 	}
 
 	k.cdc.MustUnmarshal(bz, &params)

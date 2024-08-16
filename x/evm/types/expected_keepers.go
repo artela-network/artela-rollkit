@@ -50,8 +50,8 @@ type StakingKeeper interface {
 
 // FeeKeeper
 type FeeKeeper interface {
-	GetBaseFee(ctx context.Context) *big.Int
-	GetParams(ctx context.Context) feemodule.Params
+	GetBaseFee(ctx sdk.Context) *big.Int
+	GetParams(ctx sdk.Context) feemodule.Params
 	AddTransientGasWanted(ctx context.Context, gasWanted uint64) (uint64, error)
 }
 

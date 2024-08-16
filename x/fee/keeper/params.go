@@ -14,9 +14,7 @@ func (k Keeper) GetParams(ctx cosmos.Context) (params types.Params) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	bz := store.Get(types.ParamsKey)
 	if len(bz) == 0 {
-		var p types.Params
-		k.ss.GetParamSetIfExists(ctx, &p)
-		return p
+		panic("fee params are not set")
 	}
 
 	k.cdc.MustUnmarshal(bz, &params)

@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/artela-network/artela-rollkit/app"
+	evmmoduletypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 // NewRootCmd creates a new root command for artelad. It is called once in the main function.
@@ -42,6 +43,8 @@ func NewRootCmd() *cobra.Command {
 		depinject.Configs(app.AppConfig(),
 			depinject.Supply(
 				log.NewNopLogger(),
+				evmmoduletypes.BlockGetter(nil),
+				evmmoduletypes.ChainIDGetter(nil),
 			),
 			depinject.Provide(
 				ProvideClientContext,

@@ -22,15 +22,11 @@ type (
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
 		authority string
-
-		// Legacy subspace
-		ss types.Subspace
 	}
 )
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	ss types.Subspace,
 	storeService store.KVStoreService,
 	transientStoreService store.TransientStoreService,
 	logger log.Logger,
@@ -43,7 +39,6 @@ func NewKeeper(
 
 	return Keeper{
 		cdc:                   cdc,
-		ss:                    ss,
 		storeService:          storeService,
 		transientStoreService: transientStoreService,
 		authority:             authority,

@@ -50,6 +50,7 @@ message MsgUpdateParamsResponse {}
 // MsgEthereumTx encapsulates an Ethereum transaction as an SDK message.
 message MsgEthereumTx {
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "from";
 
   // data is inner transaction data of the Ethereum transaction
   google.protobuf.Any data = 1;

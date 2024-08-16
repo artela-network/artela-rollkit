@@ -177,7 +177,6 @@ type ModuleInputs struct {
 
 	StoreService          store.KVStoreService
 	TransientStoreService store.TransientStoreService
-	Subspace              types.Subspace
 	Cdc                   codec.Codec
 	Config                *modulev1.Module
 	Logger                log.Logger
@@ -201,7 +200,6 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	}
 	k := keeper.NewKeeper(
 		in.Cdc,
-		in.Subspace,
 		in.StoreService,
 		in.TransientStoreService,
 		in.Logger,

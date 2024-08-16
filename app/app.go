@@ -76,13 +76,13 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"github.com/spf13/cast"
 
-	srvflags "github.com/artela-network/artela-rollkit/ethereum/server/flags"
-
 	"github.com/artela-network/artela-rollkit/app/ante"
 	"github.com/artela-network/artela-rollkit/app/ante/evm"
 	"github.com/artela-network/artela-rollkit/app/post"
+	srvflags "github.com/artela-network/artela-rollkit/ethereum/server/flags"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
+	"github.com/artela-network/artela-rollkit/x/evm/types"
 	feemodulekeeper "github.com/artela-network/artela-rollkit/x/fee/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
@@ -231,11 +231,11 @@ func New(
 				logger,
 
 				// Supply block height getter, required by evm keeper
-				app.LastBlockHeight,
+				types.BlockGetter(app.LastBlockHeight),
 
 				// Supply subspace params getter, required by fee and evm keeper
 				app.GetSubspace,
-				app.ChainID,
+				types.ChainIDGetter(app.ChainID),
 
 				// ADVANCED CONFIGURATION
 				//

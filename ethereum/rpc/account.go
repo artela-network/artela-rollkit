@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -27,7 +28,6 @@ import (
 	"github.com/artela-network/artela-rollkit/ethereum/rpc/types"
 	types2 "github.com/artela-network/artela-rollkit/ethereum/types"
 	"github.com/artela-network/artela-rollkit/ethereum/utils"
-	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -155,7 +155,7 @@ func (b *BackendImpl) Sign(address common.Address, data hexutil.Bytes) (hexutil.
 	}
 
 	// Sign the requested hash with the wallet
-	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data, nil)
+	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data, signing.SignMode_SIGN_MODE_DIRECT)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func (b *BackendImpl) getAccountNonce(accAddr common.Address, pending bool, heig
 	// only supports `MsgEthereumTx` style tx
 	for _, tx := range pendingTxs {
 		for _, msg := range (*tx).GetMsgs() {
-			ethMsg, ok := msg.(*txs.MsgEthereumTx)
+			ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
 			if !ok {
 				// not ethereum tx
 				break

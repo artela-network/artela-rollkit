@@ -212,7 +212,7 @@ func (b *BackendImpl) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) 
 	// fallback to tendermint tx indexer
 	query := fmt.Sprintf("%s.%s='%s'", evmtypes.TypeMsgEthereumTx, evmtypes.AttributeKeyEthereumTxHash, hash.Hex())
 	txResult, err := b.queryCosmosTxIndexer(query, func(txs *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
-		return evmtypes.GetTxByHash(hash)
+		return txs.GetTxByHash(hash)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("GetTxByEthHash %s, %w", hash.Hex(), err)
@@ -329,10 +329,10 @@ func (b *BackendImpl) queryCosmosTxIndexer(query string, txGetter func(*rpctypes
 	if err != nil {
 		return nil, err
 	}
-	if len(resevmtypes.Txs) == 0 {
+	if len(resTxs.Txs) == 0 {
 		return nil, errors.New("ethereum tx not found")
 	}
-	txResult := resevmtypes.Txs[0]
+	txResult := resTxs.Txs[0]
 	if !rpctypes.TxSuccessOrExceedsBlockGasLimit(&txResult.TxResult) {
 		return nil, errors.New("invalid ethereum tx")
 	}

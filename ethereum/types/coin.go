@@ -15,7 +15,7 @@ const (
 	// - Governance parameters: denomination used for spam prevention in proposal deposits
 	// - Crisis parameters: constant fee denomination used for spam prevention to check broken invariant
 	// - EVM parameters: denomination used for running EVM states transitions in Artela.
-	AttoArtela string = "uart"
+	AttoArtela string = "aart"
 
 	// BaseDenomUnit defines the base denomination unit for Artela.
 	// 1 art = 1x10^{BaseDenomUnit} uart

@@ -23,8 +23,8 @@ var _ paramtypes.ParamSet = (*Params)(nil)
 var (
 	// DefaultMinGasMultiplier is 0.5 or 50%
 	DefaultMinGasMultiplier = sdkmath.LegacyNewDecWithPrec(50, 2)
-	// DefaultMinGasPrice is 0 (i.e disabled)
-	DefaultMinGasPrice = sdkmath.LegacyZeroDec()
+	// DefaultMinGasPrice is 20Gwei (i.e disabled)
+	DefaultMinGasPrice = sdkmath.LegacyNewDec(20000000000)
 	// DefaultEnableHeight is 0 (i.e disabled)
 	DefaultEnableHeight = int64(0)
 	// DefaultNoBaseFee is false

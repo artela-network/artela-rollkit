@@ -26,6 +26,7 @@ type AccountKeeper interface {
 	SetAccount(ctx context.Context, acc sdk.AccountI)
 	AddressCodec() address.Codec
 	RemoveAccount(ctx context.Context, acc sdk.AccountI)
+	IterateAccounts(ctx context.Context, cb func(account sdk.AccountI) (stop bool))
 	// Methods imported from account should be defined here
 }
 

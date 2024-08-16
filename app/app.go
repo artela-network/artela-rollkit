@@ -91,7 +91,7 @@ import (
 
 const (
 	AccountAddressPrefix = "art"
-	Name                 = "artelad"
+	Name                 = "artroll"
 )
 
 const (

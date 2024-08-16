@@ -10,20 +10,23 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/artela-network/artela-rollkit/app"
+	artclient "github.com/artela-network/artela-rollkit/client"
 	eth "github.com/artela-network/artela-rollkit/ethereum/server/flags"
 
 	rollconf "github.com/rollkit/rollkit/config"
@@ -38,10 +41,22 @@ func initRootCmd(
 ) {
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
+		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome, genutiltypes.DefaultMessageValidator, address.NewBech32Codec(app.AccountAddressPrefix)),
+		genutilcli.GenTxCmd(
+			basicManager,
+			txConfig,
+			banktypes.GenesisBalancesIterator{},
+			app.DefaultNodeHome,
+			address.NewBech32Codec(app.AccountAddressPrefix),
+		),
+		genutilcli.ValidateGenesisCmd(basicManager),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, app.DefaultNodeHome),
 		snapshot.Cmd(newApp),
+		AddGenesisAccountCmd(app.DefaultNodeHome),
+		AddGenesisContractCmd(app.DefaultNodeHome),
+		KeyInfoCmd(),
 	)
 
 	server.AddCommandsWithStartCmdOptions(
@@ -63,7 +78,7 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(),
+		artclient.KeyCommands(app.DefaultNodeHome),
 	)
 }
 

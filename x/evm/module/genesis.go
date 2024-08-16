@@ -61,11 +61,31 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, accountKeeper types.AccountKe
 }
 
 // ExportGenesis returns the module's exported genesis.
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
-	genesis := types.DefaultGenesis()
-	genesis.Params = k.GetParams(ctx)
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper, ak types.AccountKeeper) *types.GenesisState {
+	var ethGenAccounts []types.GenesisAccount
+	ak.IterateAccounts(ctx, func(account sdk.AccountI) bool {
+		ethAccount, ok := account.(artela.EthAccountI)
+		if !ok {
+			// ignore non EthAccounts
+			return false
+		}
 
-	// this line is used by starport scaffolding # genesis/module/export
+		addr := ethAccount.EthAddress()
 
-	return genesis
+		storage := k.GetAccountStorage(ctx, addr)
+
+		genAccount := types.GenesisAccount{
+			Address: addr.String(),
+			Code:    common.Bytes2Hex(k.GetCode(ctx, ethAccount.GetCodeHash())),
+			Storage: storage,
+		}
+
+		ethGenAccounts = append(ethGenAccounts, genAccount)
+		return false
+	})
+
+	return &types.GenesisState{
+		Accounts: ethGenAccounts,
+		Params:   k.GetParams(ctx),
+	}
 }

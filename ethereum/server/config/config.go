@@ -175,6 +175,8 @@ func AppConfig(denom string) (string, interface{}) {
 		srvCfg.MinGasPrices = "0" + denom
 	}
 
+	// need to enable API for Aspect
+	srvCfg.API.Enable = true
 	customAppConfig := Config{
 		Config:  *srvCfg,
 		EVM:     *DefaultEVMConfig(),

@@ -45,6 +45,8 @@ func (b *BackendImpl) SendTx(ctx context.Context, signedTx *ethtypes.Transaction
 	if err != nil {
 		return err
 	}
+	// FIXME: This is a temporary fix to set the From address in the transaction,
+	//        protoMsgV2 need this field to be set and the address must be a bech32 address
 	ethereumTx.From = sdktypes.AccAddress(from.Bytes()).String()
 
 	// Query params to use the EVM denomination

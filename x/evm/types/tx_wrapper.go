@@ -149,6 +149,7 @@ func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.
 
 	builder.SetExtensionOptions(option)
 
+	// FIXME: protoV2 message need msg.From, so we cannot leave it as empty anymore
 	// A valid msg should have empty `From`
 	//msg.From = ""
 

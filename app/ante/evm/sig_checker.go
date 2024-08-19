@@ -45,10 +45,12 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx cosmos.Context, tx cosmos
 			return ctx, err
 		}
 
-		// set up the sender to the transaction field if not already
+		// sender bytes should be equal with the one defined on the message
 		if sender != common.Address(cosmos.MustAccAddressFromBech32(msgEthTx.From)) {
 			return ctx, errors.New("sender address does not match the one defined on the message")
 		}
+
+		// Need to overwrite the From field with EVM address for future use
 		msgEthTx.From = sender.Hex()
 	}
 

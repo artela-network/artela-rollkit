@@ -140,7 +140,7 @@ func (k *Keeper) ApplyTransaction(ctx cosmos.Context, tx *ethereum.Transaction) 
 	)
 
 	// build evm config and txs config
-	evmConfig, err := k.EVMConfig(ctx, ctx.BlockHeader().ProposerAddress, k.eip155ChainID)
+	evmConfig, err := k.EVMConfig(ctx, ctx.BlockHeader().ProposerAddress, k.ChainID())
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to load evm config")
 	}
@@ -257,7 +257,7 @@ func (k *Keeper) ApplyTransaction(ctx cosmos.Context, tx *ethereum.Transaction) 
 
 // ApplyMessage calls ApplyMessageWithConfig with an empty TxConfig.
 func (k *Keeper) ApplyMessage(ctx cosmos.Context, msg *core.Message, tracer vm.EVMLogger, commit bool) (*types.MsgEthereumTxResponse, error) {
-	evmConfig, err := k.EVMConfig(ctx, ctx.BlockHeader().ProposerAddress, k.eip155ChainID)
+	evmConfig, err := k.EVMConfig(ctx, ctx.BlockHeader().ProposerAddress, k.ChainID())
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to load evm config")
 	}

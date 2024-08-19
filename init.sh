@@ -57,6 +57,7 @@ cat $HOME/.artroll/config/genesis.json | jq '.app_state["staking"]["params"]["bo
 cat $HOME/.artroll/config/genesis.json | jq '.app_state["crisis"]["constant_fee"]["denom"]="aart"' >$HOME/.artroll/config/tmp_genesis.json && mv $HOME/.artroll/config/tmp_genesis.json $HOME/.artroll/config/genesis.json
 cat $HOME/.artroll/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aart"' >$HOME/.artroll/config/tmp_genesis.json && mv $HOME/.artroll/config/tmp_genesis.json $HOME/.artroll/config/genesis.json
 cat $HOME/.artroll/config/genesis.json | jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="aart"' >$HOME/.artroll/config/tmp_genesis.json && mv $HOME/.artroll/config/tmp_genesis.json $HOME/.artroll/config/genesis.json
+cat $HOME/.artroll/config/genesis.json | jq '.app_state["gov"]["params"]["expedited_min_deposit"][0]["denom"]="aart"' >$HOME/.artroll/config/tmp_genesis.json && mv $HOME/.artroll/config/tmp_genesis.json $HOME/.artroll/config/genesis.json
 cat $HOME/.artroll/config/genesis.json | jq '.app_state["mint"]["params"]["mint_denom"]="aart"' >$HOME/.artroll/config/tmp_genesis.json && mv $HOME/.artroll/config/tmp_genesis.json $HOME/.artroll/config/genesis.json
 
 # Set gas limit in genesis
@@ -77,7 +78,7 @@ artela-rollkitd add-genesis-account $KEY4 100000000000000000000000000aart --keyr
 
 # Sign genesis transaction
 echo gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID
-artela-rollkitd gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID
+artela-rollkitd gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID --fees 4000000000000000aart
 
 # Collect genesis tx
 artela-rollkitd collect-gentxs

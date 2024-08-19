@@ -7,7 +7,7 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
 	"github.com/artela-network/artela-rollkit/app"
-	"github.com/artela-network/artela-rollkit/cmd/artelad/cmd"
+	"github.com/artela-network/artela-rollkit/cmd/artrolld/cmd"
 )
 
 func main() {

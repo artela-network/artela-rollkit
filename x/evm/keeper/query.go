@@ -620,7 +620,7 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 	ctx := cosmos.UnwrapSDKContext(c)
 
 	params := k.GetParams(ctx)
-	ethCfg := params.ChainConfig.EthereumConfig(ctx.BlockHeight(), k.eip155ChainID)
+	ethCfg := params.ChainConfig.EthereumConfig(ctx.BlockHeight(), k.ChainID())
 	baseFee := k.GetBaseFee(ctx, ethCfg)
 
 	res := &types.QueryBaseFeeResponse{}

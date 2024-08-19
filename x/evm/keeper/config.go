@@ -39,7 +39,7 @@ func (k *Keeper) EVMConfig(ctx cosmos.Context, proposerAddress cosmos.ConsAddres
 }
 
 func (k *Keeper) EVMConfigFromCtx(ctx cosmos.Context) (*states.EVMConfig, error) {
-	return k.EVMConfig(ctx, ctx.BlockHeader().ProposerAddress, k.eip155ChainID)
+	return k.EVMConfig(ctx, ctx.BlockHeader().ProposerAddress, k.ChainID())
 }
 
 // VMConfig creates an EVM configuration from the debug setting and the extra EIPs enabled on the

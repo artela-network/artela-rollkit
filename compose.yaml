@@ -1,0 +1,28 @@
+# Docker Compose is used for spinning up the local-da docker container along with the GM container.
+
+version: "3"
+services:
+  artroll:
+    container_name: artroll
+    # The build config can be used for debugging and testing changes to the GM Dockerfile
+    build: .
+
+    # The image config can be used for running against published GM images
+    # image: ghcr.io/rollkit/gm:19b894c
+
+    # Used for targetting localhost as if you were outside the container
+    network_mode: host
+
+    platform: linux/amd64
+
+    # The command config is used for launching the GM rollup once the Docker container is running
+    # command: rollkit start --rollkit.aggregator --rollkit.da_address http://localhost:7980
+    depends_on:
+      - local-da
+
+  local-da:
+    image: ghcr.io/rollkit/local-da:v0.2.1
+    container_name: local-da
+    platform: linux/amd64
+    ports:
+      - "7980:7980"

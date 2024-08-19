@@ -1,5 +1,5 @@
-# artela
-**artela** is a blockchain built using Cosmos SDK and Tendermint and created with [Ignite CLI](https://ignite.com/cli).
+# artela-rollkit
+**artela-rollkit** is a rollup kit built using Celestia's rollkit and created with [Ignite CLI](https://ignite.com/cli).
 
 ## Get started
 

@@ -23,7 +23,6 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/protoadapt"
 
-	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	"github.com/artela-network/artela-rollkit/ethereum/utils"
 )
 
@@ -151,7 +150,7 @@ func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.
 	builder.SetExtensionOptions(option)
 
 	// A valid msg should have empty `From`
-	msg.From = ""
+	//msg.From = ""
 
 	err = builder.SetMsgs(msg)
 	if err != nil {
@@ -172,16 +171,11 @@ func (msg MsgEthereumTx) Type() string { return TypeMsgEthereumTx }
 // ValidateBasic implements the cosmos.Msg interface. It performs basic validation
 // checks of a Transaction. If returns an error if validation fails.
 func (msg MsgEthereumTx) ValidateBasic() error {
-	if msg.From != "" {
-		if err := artela.ValidateAddress(msg.From); err != nil {
-			return errorsmod.Wrap(err, "invalid from address")
-		}
-	}
-
-	// Validate Size_ field, should be kept empty
-	if msg.Size() != 0 {
-		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "txs size is deprecated")
-	}
+	//if msg.From != "" {
+	//	if err := artela.ValidateAddress(msg.From); err != nil {
+	//		return errorsmod.Wrap(err, "invalid from address")
+	//	}
+	//}
 
 	txData, err := UnpackTxData(msg.Data)
 	if err != nil {

@@ -1,10 +1,13 @@
 package evm
 
 import (
+	"errors"
+
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/artela-network/artela-rollkit/app/interfaces"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
@@ -43,6 +46,9 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx cosmos.Context, tx cosmos
 		}
 
 		// set up the sender to the transaction field if not already
+		if sender != common.Address(cosmos.MustAccAddressFromBech32(msgEthTx.From)) {
+			return ctx, errors.New("sender address does not match the one defined on the message")
+		}
 		msgEthTx.From = sender.Hex()
 	}
 

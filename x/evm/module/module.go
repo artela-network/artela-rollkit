@@ -94,14 +94,14 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 type AppModule struct {
 	AppModuleBasic
 
-	keeper        keeper.Keeper
+	keeper        *keeper.Keeper
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	keeper keeper.Keeper,
+	keeper *keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 ) AppModule {
@@ -128,12 +128,12 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.Ra
 	// Initialize global index to index in genesis state
 	cdc.MustUnmarshalJSON(gs, &genState)
 
-	InitGenesis(ctx, am.keeper, am.accountKeeper, genState)
+	InitGenesis(ctx, *am.keeper, am.accountKeeper, genState)
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	genState := ExportGenesis(ctx, am.keeper, am.accountKeeper)
+	genState := ExportGenesis(ctx, *am.keeper, am.accountKeeper)
 	return cdc.MustMarshalJSON(genState)
 }
 
@@ -146,7 +146,7 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 // The begin block implementation is optional.
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	BeginBlock(sdkCtx, &am.keeper)
+	BeginBlock(sdkCtx, am.keeper)
 	return nil
 }
 
@@ -154,7 +154,7 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 // The end block implementation is optional.
 func (am AppModule) EndBlock(ctx context.Context) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	return EndBlock(sdkCtx, &am.keeper)
+	return EndBlock(sdkCtx, am.keeper)
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
@@ -195,7 +195,7 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	EvmKeeper keeper.Keeper
+	EvmKeeper *keeper.Keeper
 	Module    appmodule.AppModule
 }
 
@@ -220,10 +220,10 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	)
 	m := NewAppModule(
 		in.Cdc,
-		k,
+		&k,
 		in.AccountKeeper,
 		in.BankKeeper,
 	)
 
-	return ModuleOutputs{EvmKeeper: k, Module: m}
+	return ModuleOutputs{EvmKeeper: &k, Module: m}
 }

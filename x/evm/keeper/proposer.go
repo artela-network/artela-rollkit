@@ -18,7 +18,11 @@ func (k Keeper) GetProposerAddress(ctx cosmos.Context, proposerAddress cosmos.Co
 		)
 	}
 
-	return common.BytesToAddress(cosmos.MustAccAddressFromBech32(validator.GetOperator())), nil
+	valAddress, err := cosmos.ValAddressFromBech32(validator.GetOperator())
+	if err != nil {
+		return common.Address{}, err
+	}
+	return common.BytesToAddress(valAddress), nil
 }
 
 // GetProposerAddress returns current block proposer's address when provided proposer address is empty.

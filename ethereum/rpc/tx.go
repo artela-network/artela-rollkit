@@ -41,6 +41,12 @@ func (b *BackendImpl) SendTx(ctx context.Context, signedTx *ethtypes.Transaction
 		return err
 	}
 
+	from, err := b.GetSender(ethereumTx, b.chainID)
+	if err != nil {
+		return err
+	}
+	ethereumTx.From = sdktypes.AccAddress(from.Bytes()).String()
+
 	// Query params to use the EVM denomination
 	res, err := b.queryClient.QueryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {

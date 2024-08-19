@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"io"
 	"os"
 	"path/filepath"
@@ -19,6 +20,7 @@ import (
 	_ "cosmossdk.io/x/nft/module" // import for side-effects
 	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	aspecttypes "github.com/artela-network/aspect-core/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -79,6 +81,7 @@ import (
 	"github.com/artela-network/artela-rollkit/app/ante"
 	"github.com/artela-network/artela-rollkit/app/ante/evm"
 	"github.com/artela-network/artela-rollkit/app/post"
+	"github.com/artela-network/artela-rollkit/common"
 	srvflags "github.com/artela-network/artela-rollkit/ethereum/server/flags"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
@@ -155,7 +158,7 @@ type App struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
-	EvmKeeper evmmodulekeeper.Keeper
+	EvmKeeper *evmmodulekeeper.Keeper
 	FeeKeeper feemodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -310,14 +313,17 @@ func New(
 		&app.NFTKeeper,
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
-		&app.EvmKeeper,
 		&app.FeeKeeper,
+		&app.EvmKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
 	}
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
+
+	// register extra types
+	RegisterInterfaces(app.interfaceRegistry)
 
 	// Register legacy modules
 	if err := app.registerIBCModules(appOpts); err != nil {
@@ -352,6 +358,10 @@ func New(
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	app.setAnteHandler(app.txConfig, maxGasWanted)
 	app.setPostHandler()
+
+	// init aspect pool
+	// set the runner cache capacity of aspect-runtime
+	aspecttypes.InitRuntimePool(context.Background(), common.WrapLogger(app.Logger()), cast.ToInt32(appOpts.Get(srvflags.ApplyPoolSize)), cast.ToInt32(appOpts.Get(srvflags.QueryPoolSize)))
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, err
@@ -439,6 +449,8 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 	// register app's OpenAPI routes.
 	docs.RegisterOpenAPIService(Name, apiSvr.Router)
+
+	app.EvmKeeper.SetClientContext(apiSvr.ClientCtx)
 }
 
 func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
@@ -447,7 +459,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
 		ExtensionOptionChecker: artela.HasDynamicFeeExtensionOption,
-		EvmKeeper:              &app.EvmKeeper,
+		EvmKeeper:              app.EvmKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		DistributionKeeper:     app.DistrKeeper,
 		FeeKeeper:              app.FeeKeeper,
@@ -468,7 +480,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 
 func (app *App) setPostHandler() {
 	options := post.PostDecorators{
-		EvmKeeper: &app.EvmKeeper,
+		EvmKeeper: app.EvmKeeper,
 	}
 
 	if err := options.Validate(); err != nil {

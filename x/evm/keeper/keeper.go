@@ -10,12 +10,14 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/store/prefix"
 	"github.com/artela-network/artela-evm/vm"
 	inherent "github.com/artela-network/aspect-core/chaincoreext/jit_inherent"
 	"github.com/artela-network/aspect-core/djpm"
 	aspcoretype "github.com/artela-network/aspect-core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -208,9 +210,9 @@ func (k Keeper) EmitBlockBloomEvent(ctx sdk.Context, bloom ethereum.Bloom) {
 
 // GetBlockBloomTransient returns bloom bytes for the current block height
 func (k Keeper) GetBlockBloomTransient(ctx sdk.Context) *big.Int {
-	store := common.NewPrefixStore(k.transientStoreService.OpenTransientStore(ctx), types.KeyPrefixTransientBloom)
+	store := prefix.NewStore(runtime.KVStoreAdapter(k.transientStoreService.OpenTransientStore(ctx)), types.KeyPrefixTransientBloom)
 	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
-	bz, _ := store.Get(heightBz)
+	bz := store.Get(heightBz)
 	if len(bz) == 0 {
 		return big.NewInt(0)
 	}
@@ -221,9 +223,9 @@ func (k Keeper) GetBlockBloomTransient(ctx sdk.Context) *big.Int {
 // SetBlockBloomTransient sets the given bloom bytes to the transient store. This value is reset on
 // every block.
 func (k Keeper) SetBlockBloomTransient(ctx sdk.Context, bloom *big.Int) {
-	store := common.NewPrefixStore(k.transientStoreService.OpenTransientStore(ctx), types.KeyPrefixTransientBloom)
+	store := prefix.NewStore(runtime.KVStoreAdapter(k.transientStoreService.OpenTransientStore(ctx)), types.KeyPrefixTransientBloom)
 	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
-	_ = store.Set(heightBz, bloom.Bytes())
+	store.Set(heightBz, bloom.Bytes())
 
 	k.Logger().Debug(
 		"setState: SetBlockBloomTransient",

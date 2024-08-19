@@ -9,7 +9,9 @@ import (
 
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
+	"cosmossdk.io/store/prefix"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -19,7 +21,6 @@ import (
 	inherent "github.com/artela-network/aspect-core/chaincoreext/jit_inherent"
 	artelatypes "github.com/artela-network/aspect-core/types"
 
-	artool "github.com/artela-network/artela-rollkit/common"
 	statedb "github.com/artela-network/artela-rollkit/x/evm/states"
 	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
@@ -399,14 +400,14 @@ func (c *AspectContext) Clear() {
 }
 
 type AspectState struct {
-	state        store.KVStore
+	state        prefix.Store
 	storeService store.KVStoreService
 
 	logger log.Logger
 }
 
 func NewAspectState(ctx cosmos.Context, storeService store.KVStoreService, fixKey string, logger log.Logger) *AspectState {
-	cacheStore := artool.NewPrefixStore(storeService.OpenKVStore(ctx), evmtypes.KeyPrefix(fixKey))
+	cacheStore := prefix.NewStore(runtime.KVStoreAdapter(storeService.OpenKVStore(ctx)), evmtypes.KeyPrefix(fixKey))
 	stateObj := &AspectState{
 		state:        cacheStore,
 		storeService: storeService,
@@ -418,10 +419,10 @@ func NewAspectState(ctx cosmos.Context, storeService store.KVStoreService, fixKe
 func (k *AspectState) Set(key, value []byte) {
 	action := "updated"
 	if len(value) == 0 {
-		_ = k.state.Delete(key)
+		k.state.Delete(key)
 		action = "deleted"
 	} else {
-		_ = k.state.Set(key, value)
+		k.state.Set(key, value)
 	}
 
 	if value == nil {
@@ -432,7 +433,7 @@ func (k *AspectState) Set(key, value []byte) {
 }
 
 func (k *AspectState) Get(key []byte) []byte {
-	val, _ := k.state.Get(key)
+	val := k.state.Get(key)
 	if val == nil {
 		k.logger.Debug("getState:", "key", string(key), "value", "nil")
 	} else {

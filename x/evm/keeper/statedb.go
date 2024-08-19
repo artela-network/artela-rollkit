@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/store/prefix"
 	types2 "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/status-im/keycard-go/hexutils"
 
 	errorsmod "cosmossdk.io/errors"
@@ -12,7 +14,6 @@ import (
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	artool "github.com/artela-network/artela-rollkit/common"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
@@ -37,9 +38,9 @@ func (k *Keeper) GetAccount(ctx cosmos.Context, addr common.Address) *states.Sta
 
 // GetState loads contract states from database, implements `states.Keeper` interface.
 func (k *Keeper) GetState(ctx cosmos.Context, addr common.Address, key common.Hash) common.Hash {
-	store := k.storeService.OpenKVStore(ctx)
+	store := prefix.NewStore(runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx)), types.AddressStoragePrefix(addr))
 
-	value, _ := store.Get(artool.CloneAppend(types.AddressStoragePrefix(addr), key.Bytes()))
+	value := store.Get(key.Bytes())
 	if len(value) == 0 {
 		return common.Hash{}
 	}
@@ -49,8 +50,8 @@ func (k *Keeper) GetState(ctx cosmos.Context, addr common.Address, key common.Ha
 
 // GetCode loads contract code from database, implements `states.Keeper` interface.
 func (k *Keeper) GetCode(ctx cosmos.Context, codeHash common.Hash) []byte {
-	store := k.storeService.OpenKVStore(ctx)
-	code, _ := store.Get(artool.CloneAppend(types.KeyPrefixCode, codeHash.Bytes()))
+	store := prefix.NewStore(runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx)), types.KeyPrefixCode)
+	code := store.Get(codeHash.Bytes())
 	return code
 }
 
@@ -130,13 +131,13 @@ func (k *Keeper) SetAccount(ctx cosmos.Context, addr common.Address, account sta
 
 // SetState update contract storage, delete if value is empty.
 func (k *Keeper) SetState(ctx cosmos.Context, addr common.Address, key common.Hash, value []byte) {
-	store := artool.NewPrefixStore(k.storeService.OpenKVStore(ctx), types.AddressStoragePrefix(addr))
+	store := prefix.NewStore(runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx)), types.AddressStoragePrefix(addr))
 	action := "updated"
 	if len(value) == 0 {
-		_ = store.Delete(key.Bytes())
+		store.Delete(key.Bytes())
 		action = "deleted"
 	} else {
-		_ = store.Set(key.Bytes(), value)
+		store.Set(key.Bytes(), value)
 	}
 	k.Logger().Debug(
 		fmt.Sprintf("setState: SetState %s", action),
@@ -147,7 +148,7 @@ func (k *Keeper) SetState(ctx cosmos.Context, addr common.Address, key common.Ha
 
 // SetCode set contract code, delete if code is empty.
 func (k *Keeper) SetCode(ctx cosmos.Context, codeHash, code []byte) {
-	store := artool.NewPrefixStore(k.storeService.OpenKVStore(ctx), types.KeyPrefixCode)
+	store := prefix.NewStore(runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx)), types.KeyPrefixCode)
 
 	// store or delete code
 	action := "updated"

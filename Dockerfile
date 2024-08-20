@@ -27,7 +27,7 @@ WORKDIR /app/artela-rollkit
 RUN rollkit toml init
 
 # Edit rollkit.toml config_dir
-RUN sed -i 's/config_dir = "artela"/config_dir = "\.\/\.artela"/g' rollkit.toml
+RUN sed -i 's/config_dir = "artroll"/config_dir = "\.\/\.artroll"/g' rollkit.toml
 
 # Run base rollkit command to download packages
 RUN rollkit

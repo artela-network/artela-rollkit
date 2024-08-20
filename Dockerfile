@@ -4,7 +4,7 @@
 FROM ubuntu:latest
 
 # Install system dependencies
-RUN apt update && apt install bash curl jq git make sed ranger vim
+RUN apt update && apt install -y bash curl jq git make sed ranger vim
 
 # Set the working directory
 WORKDIR /app

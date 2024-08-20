@@ -29,6 +29,9 @@ RUN rollkit toml init
 # Edit rollkit.toml config_dir
 RUN sed -i 's/config_dir = "artroll"/config_dir = "\.\/\.artroll"/g' rollkit.toml
 
+# download go pkgs first
+RUN go mod tidy
+
 # Run base rollkit command to download packages
 RUN rollkit
 

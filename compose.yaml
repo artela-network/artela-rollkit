@@ -16,7 +16,7 @@ services:
     platform: linux/amd64
 
     # The command config is used for launching the GM rollup once the Docker container is running
-    command: rollkit start --rollkit.aggregator --rollkit.da_address http://local-da:7980
+    command: rollkit start --rollkit.aggregator --rollkit.da_address http://localhost:7980
     depends_on:
       - local-da
 

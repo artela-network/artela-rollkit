@@ -1,10 +1,10 @@
 # This Dockerfile might not follow best practices, but that is an intentional
 # choice to have this Dockerfile use the install scripts that users use in the tutorial.
 
-FROM docker.io/alpine:latest
+FROM ubuntu:latest
 
 # Install system dependencies
-RUN apk update && apk add --no-cache bash curl jq git make sed ranger vim
+RUN apt update && apt install bash curl jq git make sed ranger vim
 
 # Set the working directory
 WORKDIR /app

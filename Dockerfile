@@ -4,7 +4,7 @@
 FROM ubuntu:latest
 
 # Install system dependencies
-RUN apt update && apt install -y bash curl jq git make sed ranger vim golang
+RUN apt update && apt install -y bash curl jq git make sed ranger vim golang && apt clean
 
 # Set the working directory
 WORKDIR /app
@@ -14,11 +14,12 @@ ENV GOPATH /usr/local/go
 ENV PATH $GOPATH/bin:$PATH
 
 # Install Rollkit dependencies
-RUN curl -sSL https://rollkit.dev/install.sh | sh -s v0.13.5
+RUN curl -sSL https://rollkit.dev/install.sh | sh -s v0.13.5 && go clean -modcache
 
 # Install Artela rollup
 RUN mkdir -p /app/artela-rollkit
 COPY . /app/artela-rollkit
+COPY ./.artroll /root/.artroll
 
 # Update the working directory
 WORKDIR /app/artela-rollkit
@@ -27,13 +28,10 @@ WORKDIR /app/artela-rollkit
 RUN rollkit toml init
 
 # Edit rollkit.toml config_dir
-RUN sed -i 's/config_dir = "artroll"/config_dir = "\.\/\.artroll"/g' rollkit.toml
-
-# download go pkgs first
-RUN go mod tidy
+RUN sed -i 's/config_dir = "artroll"/config_dir = "\/root\/\.artroll"/g' rollkit.toml
 
 # Run base rollkit command to download packages
-RUN rollkit
+RUN rollkit && && go clean -modcache
 
 # Keep the container running
 CMD tail -F /dev/null

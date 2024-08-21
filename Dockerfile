@@ -31,7 +31,7 @@ RUN rollkit toml init
 RUN sed -i 's/config_dir = "artroll"/config_dir = "\/root\/\.artroll"/g' rollkit.toml
 
 # Run base rollkit command to download packages
-RUN rollkit && && go clean -modcache
+RUN rollkit && go clean -modcache
 
 # Keep the container running
 CMD tail -F /dev/null

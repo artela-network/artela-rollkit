@@ -13,10 +13,6 @@ services:
     # Used for targetting localhost as if you were outside the container
     network_mode: host
 
-    ports:
-      - "8545:8545"
-      - "26657:26657"
-
     # The command config is used for launching the GM rollup once the Docker container is running
     command: rollkit start --rollkit.aggregator --rollkit.da_address http://localhost:7980
     depends_on:

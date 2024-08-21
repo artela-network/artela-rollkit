@@ -4,11 +4,11 @@ version: "3"
 services:
   artroll:
     container_name: artroll
-    # The build config can be used for debugging and testing changes to the GM Dockerfile
-    build: .
+    # The build config can be used for debugging and testing changes to the Dockerfile
+    # build: .
 
-    # The image config can be used for running against published GM images
-    # image: ghcr.io/rollkit/gm:19b894c
+    # The image config can be used for running against published images
+    image: artelanetwork/rollkit:latest
 
     # Used for targetting localhost as if you were outside the container
     network_mode: host

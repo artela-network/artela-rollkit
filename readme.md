@@ -24,7 +24,7 @@ As the first rollup kit equipped with Aspects, Artela network aims to **maximize
   <img src="https://docs.artela.network/assets/images/2-a4045260ad64e65eaa2af9fc50c06a4a.png" width="500" height="500">
 </p>
 
-* **Base Layer:** Provide basic functions, including consensus engine, networking, EVM environments for the smart contract execution, and WASM environments for the Aspects execution. This layer is launched by Artela.
+* **Base Layer:** Provide basic functions, including consensus engine, networking, EVM environments for the smart contract execution, and WASM environments for the Aspects execution. This layer is supported by Celestia's Rollkit.
 
 * **Extension Layer:** Provide the Aspect SDK. Developers are able to build Aspects. Aspects have access to all APIs within the base layer and can be freely combined with smart contracts and other Aspects. Aspect is securely isolated from Base Layer, ensuring that it has no impact on the security or availability of the core network.
 
@@ -34,7 +34,8 @@ As the first rollup kit equipped with Aspects, Artela network aims to **maximize
 ## Build the source
 
 1). Set Up Your Go Development Environment<br />
-Make sure you have set up your Go programming language development environment.
+
+Make sure you have set up your [Go](https://go.dev/) development environment.
 
 2). Install ignite-cli<br />
 
@@ -70,18 +71,10 @@ ignite chain build
 
 ## Running a local dev node
 
-1. Start `local-da` for the local development environment, make sure you have docker installed:
+You can run a local development node using the following command, make sure you have [docker](https://www.docker.com/products/docker-desktop/) installed on your machine before you execute:
 
 ```sh
-docker run --name local-da -tid -p 7980:7980 ghcr.io/rollkit/local-da:v0.2.1
-```
-
-if you prefer to run the local-da from the source code, you can find it out [here](https://github.com/rollkit/local-da).
-
-2. Start `artela-rollkitd`:
-
-```sh
-
+docker compose up -d
 ```
 
 ---

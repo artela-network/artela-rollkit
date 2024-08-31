@@ -9,9 +9,11 @@ import (
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -145,13 +147,71 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block.
 // The begin block implementation is optional.
-func (am AppModule) BeginBlock(_ context.Context) error {
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	baseFee := am.keeper.CalculateBaseFee(sdkCtx)
+
+	// return immediately if base fee is nil
+	if baseFee == nil {
+		return nil
+	}
+
+	am.keeper.SetBaseFee(sdkCtx, baseFee)
+
+	defer func() {
+		telemetry.SetGauge(float32(baseFee.Int64()), "fee", "base_fee")
+	}()
+
+	// Store current base fee in event
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeFee,
+			sdk.NewAttribute(types.AttributeKeyBaseFee, baseFee.String()),
+		),
+	})
+
 	return nil
 }
 
 // EndBlock contains the logic that is automatically triggered at the end of each block.
 // The end block implementation is optional.
-func (am AppModule) EndBlock(_ context.Context) error {
+func (am AppModule) EndBlock(ctx context.Context) error {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	if sdkCtx.BlockGasMeter() == nil {
+		sdkCtx.Logger().Error("block gas meter is nil when setting block gas wanted")
+		return nil
+	}
+
+	gasWanted := sdkmath.NewIntFromUint64(am.keeper.GetTransientGasWanted(ctx))
+	gasUsed := sdkmath.NewIntFromUint64(sdkCtx.BlockGasMeter().GasConsumedToLimit())
+
+	if !gasWanted.IsInt64() {
+		sdkCtx.Logger().Error("integer overflow by integer type conversion. Gas wanted > MaxInt64", "gas wanted", gasWanted.String())
+		return nil
+	}
+
+	if !gasUsed.IsInt64() {
+		sdkCtx.Logger().Error("integer overflow by integer type conversion. Gas used > MaxInt64", "gas used", gasUsed.String())
+		return nil
+	}
+
+	// to prevent BaseFee manipulation we limit the gasWanted so that
+	// gasWanted = max(gasWanted * MinGasMultiplier, gasUsed)
+	// this will be keep BaseFee protected from un-penalized manipulation
+	minGasMultiplier := am.keeper.GetParams(sdkCtx).MinGasMultiplier
+	limitedGasWanted := sdkmath.LegacyNewDec(gasWanted.Int64()).Mul(minGasMultiplier)
+	updatedGasWanted := sdkmath.LegacyMaxDec(limitedGasWanted, sdkmath.LegacyNewDec(gasUsed.Int64())).TruncateInt().Uint64()
+	am.keeper.SetBlockGasWanted(ctx, updatedGasWanted)
+
+	defer func() {
+		telemetry.SetGauge(float32(updatedGasWanted), "fee", "block_gas")
+	}()
+
+	sdkCtx.EventManager().EmitEvent(sdk.NewEvent(
+		"block_gas",
+		sdk.NewAttribute("height", fmt.Sprintf("%d", sdkCtx.BlockHeight())),
+		sdk.NewAttribute("amount", fmt.Sprintf("%d", updatedGasWanted)),
+	))
 	return nil
 }
 

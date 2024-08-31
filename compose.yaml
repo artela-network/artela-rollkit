@@ -1,6 +1,6 @@
 # Docker Compose is used for spinning up the local-da docker container along with the GM container.
 
-version: "3"
+version: "3.8"
 services:
   artroll:
     container_name: artroll
@@ -12,6 +12,9 @@ services:
 
     # Used for targetting localhost as if you were outside the container
     network_mode: host
+
+    # Always pull the latest image
+    pull_policy: always
 
     # The command config is used for launching the GM rollup once the Docker container is running
     command: rollkit start --rollkit.aggregator --rollkit.da_address http://localhost:7980

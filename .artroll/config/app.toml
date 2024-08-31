@@ -18,11 +18,11 @@ query-gas-limit = "0"
 # nothing: all historic states will be saved, nothing will be deleted (i.e. archiving node)
 # everything: 2 latest states will be kept; pruning at 10 block intervals.
 # custom: allow pruning options to be manually specified through 'pruning-keep-recent', and 'pruning-interval'
-pruning = "custom"
+pruning = "nothing"
 
 # These are applied if and only if the pruning strategy is custom.
-pruning-keep-recent = "2"
-pruning-interval = "10"
+# pruning-keep-recent = "2"
+# pruning-interval = "10"
 
 # HaltHeight contains a non-zero block height at which a node will gracefully
 # halt and shutdown that can be used to assist upgrades and testing.

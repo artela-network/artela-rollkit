@@ -15,6 +15,7 @@ import (
 
 	ethrpc "github.com/artela-network/artela-rollkit/ethereum/rpc"
 	"github.com/artela-network/artela-rollkit/ethereum/server/config"
+	ethNode "github.com/ethereum/go-ethereum/node"
 )
 
 // CreateJSONRPC starts the JSON-RPC server
@@ -23,14 +24,38 @@ func CreateJSONRPC(ctx *sdkserver.Context,
 	tmRPCAddr,
 	tmEndpoint string,
 	config *config.Config,
+	db dbm.DB,
 ) (*ethrpc.ArtelaService, error) {
-	cfg := ethrpc.DefaultConfig()
-	cfg.RPCGasCap = config.JSONRPC.GasCap
-	cfg.RPCEVMTimeout = config.JSONRPC.EVMTimeout
-	cfg.RPCTxFeeCap = config.JSONRPC.TxFeeCap
-	cfg.AppCfg = config
+	cfg := getRpcConfig(config)
 
+	nodeCfg, err := getNodeConfig(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
+	stack, err := ethrpc.NewNode(nodeCfg)
+	if err != nil {
+		return nil, err
+	}
+
+	wsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, nodeCfg.Logger)
+
+	serv := ethrpc.NewArtelaService(ctx, clientCtx, wsClient, cfg, stack, nodeCfg.Logger, db)
+
+	// allocate separate WS connection to Tendermint
+	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, nodeCfg.Logger)
+	wsSrv := ethrpc.NewWebsocketsServer(clientCtx, tmWsClient, config, nodeCfg.Logger)
+	wsSrv.Start()
+
+	return serv, nil
+}
+
+func getNodeConfig(ctx *sdkserver.Context, config *config.Config) (*ethNode.Config, error) {
 	nodeCfg := ethrpc.DefaultGethNodeConfig()
+	// if not define, use default value
+	if len(config.JSONRPC.API) > 0 {
+		nodeCfg.HTTPModules = config.JSONRPC.API
+	}
 	address := strings.Split(config.JSONRPC.Address, ":")
 	if len(address) > 0 {
 		nodeCfg.HTTPHost = address[0]
@@ -58,21 +83,16 @@ func CreateJSONRPC(ctx *sdkserver.Context,
 	}))
 	// do not start websocket
 	nodeCfg.WSHost = ""
-	stack, err := ethrpc.NewNode(nodeCfg)
-	if err != nil {
-		return nil, err
-	}
+	return nodeCfg, nil
+}
 
-	wsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, nodeCfg.Logger)
-
-	serv := ethrpc.NewArtelaService(ctx, clientCtx, wsClient, cfg, stack, nodeCfg.Logger)
-
-	// allocate separate WS connection to Tendermint
-	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, nodeCfg.Logger)
-	wsSrv := ethrpc.NewWebsocketsServer(clientCtx, tmWsClient, config, nodeCfg.Logger)
-	wsSrv.Start()
-
-	return serv, nil
+func getRpcConfig(config *config.Config) *ethrpc.Config {
+	cfg := ethrpc.DefaultConfig()
+	cfg.RPCGasCap = config.JSONRPC.GasCap
+	cfg.RPCEVMTimeout = config.JSONRPC.EVMTimeout
+	cfg.RPCTxFeeCap = config.JSONRPC.TxFeeCap
+	cfg.AppCfg = config
+	return cfg
 }
 
 func openDB(rootDir string, backendType dbm.BackendType) (dbm.DB, error) {

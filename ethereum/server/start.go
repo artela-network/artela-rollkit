@@ -12,6 +12,7 @@ import (
 	pvm "github.com/cometbft/cometbft/privval"
 	"github.com/cometbft/cometbft/proxy"
 	cmttypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -54,7 +55,13 @@ func StartHandler[T sdktypes.Application](svrCtx *server.Context, clientCtx clie
 		return err
 	}
 
-	app, appCleanupFn, err := startApp[T](svrCtx, appCreator, opts)
+	home := svrCtx.Config.RootDir
+	db, err := opts.DBOpener(home, server.GetAppDBBackend(svrCtx.Viper))
+	if err != nil {
+		return err
+	}
+
+	app, appCleanupFn, err := startApp[T](svrCtx, db, appCreator, opts)
 	if err != nil {
 		return err
 	}
@@ -67,17 +74,11 @@ func StartHandler[T sdktypes.Application](svrCtx *server.Context, clientCtx clie
 
 	emitServerInfoMetrics()
 
-	return startInProcess[T](svrCtx, svrCfg, clientCtx, app, metrics, opts)
+	return startInProcess[T](svrCtx, db, svrCfg, clientCtx, app, metrics, opts)
 }
 
-func startApp[T sdktypes.Application](svrCtx *server.Context, appCreator sdktypes.AppCreator, opts server.StartCmdOptions) (app sdktypes.Application, cleanupFn func(), err error) {
+func startApp[T sdktypes.Application](svrCtx *server.Context, db dbm.DB, appCreator sdktypes.AppCreator, opts server.StartCmdOptions) (app sdktypes.Application, cleanupFn func(), err error) {
 	traceWriter, traceCleanupFn, err := setupTraceWriter(svrCtx)
-	if err != nil {
-		return app, traceCleanupFn, err
-	}
-
-	home := svrCtx.Config.RootDir
-	db, err := opts.DBOpener(home, server.GetAppDBBackend(svrCtx.Viper))
 	if err != nil {
 		return app, traceCleanupFn, err
 	}
@@ -93,7 +94,7 @@ func startApp[T sdktypes.Application](svrCtx *server.Context, appCreator sdktype
 	return app, cleanupFn, nil
 }
 
-func startInProcess[T sdktypes.Application](svrCtx *server.Context, svrCfg serverconfig.Config, clientCtx client.Context, app sdktypes.Application,
+func startInProcess[T sdktypes.Application](svrCtx *server.Context, db dbm.DB, svrCfg serverconfig.Config, clientCtx client.Context, app sdktypes.Application,
 	metrics *telemetry.Metrics, opts server.StartCmdOptions,
 ) error {
 	cmtCfg := svrCtx.Config
@@ -152,7 +153,7 @@ func startInProcess[T sdktypes.Application](svrCtx *server.Context, svrCfg serve
 	if appcfg.JSONRPC.Enable {
 		tmEndpoint := "/websocket"
 		tmRPCAddr := cmtCfg.RPC.ListenAddress
-		jsonrpcSrv, err = CreateJSONRPC(svrCtx, clientCtx, tmRPCAddr, tmEndpoint, &appcfg)
+		jsonrpcSrv, err = CreateJSONRPC(svrCtx, clientCtx, tmRPCAddr, tmEndpoint, &appcfg, db)
 		if err != nil {
 			return err
 		}

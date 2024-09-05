@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"testing"
 
 	"cosmossdk.io/log"
@@ -17,12 +18,22 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/require"
 
+	coreStore "cosmossdk.io/core/store"
 	"github.com/artela-network/artela-rollkit/x/fee/keeper"
 	"github.com/artela-network/artela-rollkit/x/fee/types"
 )
 
+type mockTransientStoreService struct {
+	key *storetypes.TransientStoreKey
+}
+
+func (t mockTransientStoreService) OpenTransientStore(ctx context.Context) coreStore.KVStore {
+	return nil
+}
+
 func FeeKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
+	transientStoreKey := storetypes.NewTransientStoreKey(types.StoreKey)
 
 	db := dbm.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
@@ -36,6 +47,7 @@ func FeeKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	k := keeper.NewKeeper(
 		cdc,
 		runtime.NewKVStoreService(storeKey),
+		mockTransientStoreService{transientStoreKey},
 		log.NewNopLogger(),
 		authority.String(),
 	)

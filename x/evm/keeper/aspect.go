@@ -9,10 +9,6 @@ import (
 	artvmtype "github.com/artela-network/artela-rollkit/x/evm/artela/types"
 )
 
-func (k Keeper) GetAspectRuntimeContext() *artvmtype.AspectRuntimeContext {
-	return k.aspectRuntimeContext
-}
-
 func (k Keeper) JITSenderAspectByContext(ctx context.Context, userOpHash common.Hash) (common.Address, error) {
 	return mustGetAspectCtx(ctx).JITManager().SenderAspect(userOpHash), nil
 }

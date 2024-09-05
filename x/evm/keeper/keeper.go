@@ -28,8 +28,8 @@ import (
 
 	"github.com/artela-network/artela-rollkit/common"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
+	"github.com/artela-network/artela-rollkit/x/aspect/provider"
 	"github.com/artela-network/artela-rollkit/x/evm/artela/api"
-	"github.com/artela-network/artela-rollkit/x/evm/artela/provider"
 	artvmtype "github.com/artela-network/artela-rollkit/x/evm/artela/types"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
 	"github.com/artela-network/artela-rollkit/x/evm/txs"
@@ -88,7 +88,6 @@ func NewKeeper(
 	chainIDGetter types.ChainIDGetter,
 	logger log.Logger,
 	authority string,
-
 ) Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
@@ -100,7 +99,7 @@ func NewKeeper(
 	}
 
 	// init aspect
-	aspect := provider.NewArtelaProvider(storeService, artvmtype.GetLastBlockHeight(blockGetter), logger)
+	aspect := provider.NewArtelaProvider(storeService, artvmtype.GetLastBlockHeight(blockGetter))
 	// new Aspect Runtime Context
 	aspectRuntimeContext := artvmtype.NewAspectRuntimeContext()
 	aspectRuntimeContext.Init(storeService)
@@ -198,7 +197,7 @@ func (k Keeper) EmitBlockBloomEvent(ctx sdk.Context, bloom ethereum.Bloom) {
 	encodedBloom := base64.StdEncoding.EncodeToString(bloom.Bytes())
 
 	sprintf := fmt.Sprintf("emit block event %d bloom %s header %d, ", len(bloom.Bytes()), encodedBloom, ctx.BlockHeight())
-	k.Logger().Info(sprintf)
+	k.Logger().Debug(sprintf)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

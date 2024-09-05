@@ -17,6 +17,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
 	// this line is used by starport scaffolding # 1
 
 	modulev1 "github.com/artela-network/artela-rollkit/api/artela/evm/module"
@@ -205,6 +206,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
+
 	k := keeper.NewKeeper(
 		in.Cdc,
 		in.StoreService,

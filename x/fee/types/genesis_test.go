@@ -3,9 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"artela/x/fee/types"
-
 	"github.com/stretchr/testify/require"
+
+	"github.com/artela-network/artela-rollkit/x/fee/types"
 )
 
 func TestGenesisState_Validate(t *testing.T) {

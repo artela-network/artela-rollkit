@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	cosmos "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -12,7 +13,8 @@ import (
 func TestMsgUpdateParams(t *testing.T) {
 	k, ms, ctx := setupMsgServer(t)
 	params := types.DefaultParams()
-	require.NoError(t, k.SetParams(ctx, params))
+	sdkCtx := cosmos.UnwrapSDKContext(ctx)
+	require.NoError(t, k.SetParams(sdkCtx, params))
 	wctx := sdk.UnwrapSDKContext(ctx)
 
 	// default params

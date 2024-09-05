@@ -2,6 +2,7 @@ package rpc
 
 import (
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	db "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/ethereum/go-ethereum/log"
@@ -12,6 +13,7 @@ import (
 
 type ArtelaService struct {
 	clientCtx client.Context
+	serverCtx *server.Context
 	wsClient  *rpcclient.WSClient
 	cfg       *Config
 	stack     types.NetworkingStack
@@ -26,21 +28,23 @@ func NewArtelaService(
 	cfg *Config,
 	stack types.NetworkingStack,
 	logger log.Logger,
+	db db.DB,
 ) *ArtelaService {
 	art := &ArtelaService{
 		cfg:       cfg,
 		stack:     stack,
 		clientCtx: clientCtx,
+		serverCtx: ctx,
 		wsClient:  wsClient,
 		logger:    logger,
 	}
 
-	art.backend = NewBackend(ctx, clientCtx, art, stack.ExtRPCEnabled(), cfg, logger)
+	art.backend = NewBackend(ctx, clientCtx, art, stack.ExtRPCEnabled(), cfg, logger, db)
 	return art
 }
 
 func (art *ArtelaService) APIs() []rpc.API {
-	return GetAPIs(art.clientCtx, art.wsClient, art.logger, art.backend)
+	return GetAPIs(art.clientCtx, art.serverCtx, art.wsClient, art.logger, art.backend)
 }
 
 // Start start the ethereum JsonRPC service

@@ -87,9 +87,18 @@ import (
 	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
 	feemodulekeeper "github.com/artela-network/artela-rollkit/x/fee/keeper"
+
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	"github.com/artela-network/artela-rollkit/docs"
+
+	// do not remove this, this will register the native evm tracers
+	_ "github.com/artela-network/artela-evm/tracers/native"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+
+	// aspect related imports
+	_ "github.com/artela-network/artela-rollkit/x/aspect/store/v0"
+	_ "github.com/artela-network/artela-rollkit/x/aspect/store/v1"
 )
 
 const (

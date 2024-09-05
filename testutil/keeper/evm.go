@@ -23,6 +23,7 @@ import (
 
 func EvmKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
+	transientStoreKey := storetypes.NewTransientStoreKey(types.StoreKey)
 
 	db := dbm.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
@@ -36,6 +37,7 @@ func EvmKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	k := keeper.NewKeeper(
 		cdc,
 		runtime.NewKVStoreService(storeKey),
+		mockTransientStoreService{transientStoreKey},
 		log.NewNopLogger(),
 		authority.String(),
 	)

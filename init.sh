@@ -80,6 +80,10 @@ artela-rollkitd add-genesis-account $KEY4 100000000000000000000000000aart --keyr
 echo gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID
 artela-rollkitd gentx $KEY 1000000000000000000000aart --keyring-backend $KEYRING --chain-id $CHAINID --fees 4000000000000000aart
 
+ADDRESS=$(jq -r '.address' ~/.artroll/config/priv_validator_key.json)
+PUB_KEY=$(jq -r '.pub_key' ~/.artroll/config/priv_validator_key.json)
+jq --argjson pubKey "$PUB_KEY" '.consensus["validators"]=[{"address": "'$ADDRESS'", "pub_key": $pubKey, "power": "1000000000000000", "name": "Rollkit Sequencer"}]' ~/.artroll/config/genesis.json > temp.json && mv temp.json ~/.artroll/config/genesis.json
+
 # Collect genesis tx
 artela-rollkitd collect-gentxs
 

@@ -1,22 +1,35 @@
 version: 1
 validation: sovereign
-accounts: 
-- name: alice
-  coins:
-  - 20000token
-  - 200000000stake
-- name: bob
-  coins:
-  - 10000token
-  - 100000000stake
-client:
-  openapi:
-    path: docs/static/openapi.yml
+accounts:
+  - name: alice
+    coins:
+      - 20000token
+      - 200000000stake
+  - name: bob
+    coins:
+      - 10000token
+      - 100000000stake
+# client:
+#   openapi:
+#     path: docs/static/openapi.yml
+#   typescript:
+#     path: "ts-client"
+#   composables:
+#     path: "vue/src/composables"
+#   hooks:
+#     path: "react/src/hooks"
 faucet:
   name: bob
   coins:
-  - 5token
-  - 100000stake
+    - 5token
+    - 100000stake
+  port: 4500
+  rate_limit_window: 3600
 validators:
-- name: alice
-  bonded: 100000000stake
+  - name: alice
+    bonded: 100000000stake
+build:
+  main: cmd/artrolld/cmd
+  binary: "artrolld"
+  proto:
+    path: "proto"

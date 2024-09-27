@@ -1,14 +1,16 @@
 # Docker Compose is used for spinning up the local-da docker container along with the GM container.
 
-version: "3.8"
 services:
-  artroll:
-    container_name: artroll
+  lazy:
+    container_name: lazy
     # The build config can be used for debugging and testing changes to the Dockerfile
-    # build: .
+    build:
+      context: .
+      args:
+        - ROLLKIT_VERSION=v0.13.7
 
     # The image config can be used for running against published images
-    image: artelanetwork/rollkit:latest
+    # image: artelanetwork/rollkit:latest
 
     # Used for targetting localhost as if you were outside the container
     network_mode: host
@@ -16,7 +18,7 @@ services:
     # Always pull the latest image
     pull_policy: always
 
-    # The command config is used for launching the GM rollup once the Docker container is running
+    # The command config is used for launching the rollup once the Docker container is running
     command: rollkit start --rollkit.aggregator --rollkit.da_address http://localhost:7980
     depends_on:
       - local-da

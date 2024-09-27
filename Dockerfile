@@ -1,6 +1,8 @@
 # This Dockerfile might not follow best practices, but that is an intentional
 # choice to have this Dockerfile use the install scripts that users use in the tutorial.
 
+ARG ROLLKIT_VERSION="v0.13.7"
+
 FROM ubuntu:latest
 
 # Install system dependencies
@@ -14,12 +16,12 @@ ENV GOPATH /usr/local/go
 ENV PATH $GOPATH/bin:$PATH
 
 # Install Rollkit dependencies
-RUN (curl -sSL https://rollkit.dev/install.sh | sh -s v0.13.5) && go clean -modcache
+RUN (curl -sSL https://rollkit.dev/install.sh | sh -s ${ROLLKIT_VERSION}) && go clean -modcache
 
 # Install Artela rollup
 RUN mkdir -p /app/artela-rollkit
 COPY . /app/artela-rollkit
-COPY ./.artroll /root/.artroll
+COPY ./lazy_config /root/.artroll
 
 # Update the working directory
 WORKDIR /app/artela-rollkit

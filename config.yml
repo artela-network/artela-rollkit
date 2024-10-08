@@ -1,4 +1,6 @@
 version: 1
+build:
+  ldflags: [ "-checklinkname=0" ]
 validation: sovereign
 accounts: 
 - name: alice

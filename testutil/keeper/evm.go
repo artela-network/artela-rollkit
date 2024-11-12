@@ -34,11 +34,21 @@ func EvmKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	cdc := codec.NewProtoCodec(registry)
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
+	var mockBlockGetter = func() int64 {
+		return 0
+	}
+
+	var mockChainIDGetter = func() string {
+		return "11820"
+	}
+
 	k := keeper.NewKeeper(
 		cdc,
 		runtime.NewKVStoreService(storeKey),
 		mockTransientStoreService{transientStoreKey},
-		nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
+		mockBlockGetter,
+		mockChainIDGetter,
 		log.NewNopLogger(),
 		authority.String(),
 	)

@@ -24,13 +24,13 @@ import (
 	ethereum "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 
-	artelatypes "github.com/artela-network/artela-rollkit/x/evm/artela/types"
-
 	"github.com/artela-network/artela-rollkit/common"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	"github.com/artela-network/artela-rollkit/x/aspect/provider"
 	"github.com/artela-network/artela-rollkit/x/evm/artela/api"
+	artelatypes "github.com/artela-network/artela-rollkit/x/evm/artela/types"
 	artvmtype "github.com/artela-network/artela-rollkit/x/evm/artela/types"
+	"github.com/artela-network/artela-rollkit/x/evm/precompile/erc20"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
 	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
@@ -74,6 +74,8 @@ type (
 
 		// cache of aspect sig
 		VerifySigCache *sync.Map
+
+		erc20Contract *erc20.ERC20Contract
 	}
 )
 
@@ -142,6 +144,8 @@ func NewKeeper(
 
 	aspcoretype.JITSenderAspectByContext = k.JITSenderAspectByContext
 	aspcoretype.IsCommit = k.IsCommit
+
+	k.erc20Contract = erc20.InitERC20Contract(k.logger, cdc, k.storeService, k.bankKeeper)
 	return k
 }
 

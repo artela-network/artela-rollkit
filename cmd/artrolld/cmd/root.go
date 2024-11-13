@@ -112,6 +112,9 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts.Modules[name] = mod
 	}
 
+	// RegisterInterfaces & RegisterLegacyAminoCodec
+	app.MakeConfig(moduleBasicManager)
+
 	initRootCmd(rootCmd, clientCtx.TxConfig, moduleBasicManager)
 
 	overwriteFlagDefaults(rootCmd, map[string]string{

@@ -36,6 +36,8 @@ type EVMKeeper interface {
 	MakeSigner(ctx cosmos.Context, tx *ethereum.Transaction, config *params.ChainConfig, blockNumber *big.Int, blockTime uint64) ethereum.Signer
 }
 
+type AspectKeeper interface{}
+
 type FeeKeeper interface {
 	GetParams(ctx cosmos.Context) (params feemodule.Params)
 	AddTransientGasWanted(ctx context.Context, gasWanted uint64) (uint64, error)

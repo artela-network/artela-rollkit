@@ -17,13 +17,12 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/artela-network/artela-rollkit/x/evm/keeper"
-	"github.com/artela-network/artela-rollkit/x/evm/types"
+	"github.com/artela-network/artela-rollkit/x/aspect/keeper"
+	"github.com/artela-network/artela-rollkit/x/aspect/types"
 )
 
-func EvmKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
+func AspectKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
-	transientStoreKey := storetypes.NewTransientStoreKey(types.StoreKey)
 
 	db := dbm.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
@@ -37,8 +36,6 @@ func EvmKeeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	k := keeper.NewKeeper(
 		cdc,
 		runtime.NewKVStoreService(storeKey),
-		mockTransientStoreService{transientStoreKey},
-		nil, nil, nil, nil, nil, nil,
 		log.NewNopLogger(),
 		authority.String(),
 	)

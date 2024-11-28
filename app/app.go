@@ -84,6 +84,7 @@ import (
 	"github.com/artela-network/artela-rollkit/common"
 	srvflags "github.com/artela-network/artela-rollkit/ethereum/server/flags"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
+	aspectmodulekeeper "github.com/artela-network/artela-rollkit/x/aspect/keeper"
 	evmmodulekeeper "github.com/artela-network/artela-rollkit/x/evm/keeper"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
 	feemodulekeeper "github.com/artela-network/artela-rollkit/x/fee/keeper"
@@ -167,8 +168,9 @@ type App struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
-	EvmKeeper *evmmodulekeeper.Keeper
-	FeeKeeper feemodulekeeper.Keeper
+	EvmKeeper    *evmmodulekeeper.Keeper
+	FeeKeeper    feemodulekeeper.Keeper
+	AspectKeeper aspectmodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// simulation manager
@@ -324,6 +326,7 @@ func New(
 		&app.CircuitBreakerKeeper,
 		&app.FeeKeeper,
 		&app.EvmKeeper,
+		&app.AspectKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
@@ -469,6 +472,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		BankKeeper:             app.BankKeeper,
 		ExtensionOptionChecker: artela.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EvmKeeper,
+		AspectKeeper:           app.AspectKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		DistributionKeeper:     app.DistrKeeper,
 		FeeKeeper:              app.FeeKeeper,

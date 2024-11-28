@@ -11,6 +11,10 @@ import (
 	_ "github.com/artela-network/artela-rollkit/x/fee/module" // import for side-effects
 	feemoduletypes "github.com/artela-network/artela-rollkit/x/fee/types"
 
+	aspectmodulev1 "github.com/artela-network/artela-rollkit/api/artela/aspect/module"
+	_ "github.com/artela-network/artela-rollkit/x/aspect/module" // import for side-effects
+	aspectmoduletypes "github.com/artela-network/artela-rollkit/x/aspect/types"
+
 	_ "github.com/artela-network/artela-rollkit/ethereum/types"
 
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
@@ -84,6 +88,7 @@ var (
 		minttypes.ModuleName,
 		crisistypes.ModuleName,
 		evmmoduletypes.ModuleName,
+		aspectmoduletypes.ModuleName,
 		feemoduletypes.ModuleName,
 		ibcexported.ModuleName,
 		genutiltypes.ModuleName,
@@ -113,6 +118,7 @@ var (
 		upgradetypes.ModuleName,
 		feemoduletypes.ModuleName,
 		evmmoduletypes.ModuleName,
+		aspectmoduletypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -144,6 +150,7 @@ var (
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmmoduletypes.ModuleName,
+		aspectmoduletypes.ModuleName,
 		feemoduletypes.ModuleName,
 		feegrant.ModuleName,
 		group.ModuleName,
@@ -331,6 +338,10 @@ var (
 			{
 				Name:   feemoduletypes.ModuleName,
 				Config: appconfig.WrapAny(&feemodulev1.Module{}),
+			},
+			{
+				Name:   aspectmoduletypes.ModuleName,
+				Config: appconfig.WrapAny(&aspectmodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

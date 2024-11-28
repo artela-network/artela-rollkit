@@ -44,7 +44,7 @@ func NewAspectMetaStore(ctx *types.AspectStoreContext, _ []byte) store.AspectMet
 		meter = NewNoOpGasMeter(ctx)
 	}
 
-	store := runtime.KVStoreAdapter(ctx.StoreService().OpenKVStore(ctx.CosmosContext()))
+	store := runtime.KVStoreAdapter(ctx.EVMStoreService().OpenKVStore(ctx.CosmosContext()))
 
 	return &metaStore{
 		BaseStore: NewBaseStore(meter, store),

@@ -23,11 +23,13 @@ type AspectNativeContract struct {
 	logger   log.Logger
 	handlers map[string]Handler
 
-	storeService store.KVStoreService
+	storeService       store.KVStoreService
+	aspectStoreService store.KVStoreService
 }
 
 func NewAspectNativeContract(
 	storeService store.KVStoreService,
+	aspectStoreService store.KVStoreService,
 	evm *vm.EVM,
 	evmState *states.StateDB,
 	logger log.Logger,
@@ -82,6 +84,7 @@ func (c *AspectNativeContract) applyMsg(ctx sdk.Context, msg *core.Message, gas 
 		c.evm,
 		method,
 		c.storeService,
+		c.aspectStoreService,
 		msg.Data,
 		msg.Nonce,
 		msg.GasLimit,

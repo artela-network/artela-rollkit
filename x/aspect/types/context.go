@@ -9,18 +9,20 @@ import (
 )
 
 type storeContext struct {
-	cosmosCtx    sdk.Context
-	storeService cstore.KVStoreService
-	gas          uint64
+	cosmosCtx       sdk.Context
+	evmStoreService cstore.KVStoreService
+	storeService    cstore.KVStoreService
+	gas             uint64
 
 	chargeGas bool
 }
 
 func (s *storeContext) clone() StoreContext {
 	return &storeContext{
-		cosmosCtx:    s.cosmosCtx,
-		storeService: s.storeService,
-		gas:          s.gas,
+		cosmosCtx:       s.cosmosCtx,
+		evmStoreService: s.evmStoreService,
+		storeService:    s.storeService,
+		gas:             s.gas,
 	}
 }
 
@@ -30,6 +32,10 @@ func (s *storeContext) Logger() log.Logger {
 
 func (s *storeContext) CosmosContext() sdk.Context {
 	return s.cosmosCtx
+}
+
+func (s *storeContext) EVMStoreService() cstore.KVStoreService {
+	return s.evmStoreService
 }
 
 func (s *storeContext) StoreService() cstore.KVStoreService {
@@ -60,6 +66,7 @@ func (s *storeContext) ConsumeGas(gas uint64) error {
 type StoreContext interface {
 	CosmosContext() sdk.Context
 	StoreService() cstore.KVStoreService
+	EVMStoreService() cstore.KVStoreService
 	Gas() uint64
 	ConsumeGas(gas uint64) error
 	UpdateGas(gas uint64)
@@ -69,20 +76,22 @@ type StoreContext interface {
 	clone() StoreContext
 }
 
-func NewStoreContext(ctx sdk.Context, storeService cstore.KVStoreService, gas uint64) StoreContext {
+func NewStoreContext(ctx sdk.Context, evmStoreService, storeService cstore.KVStoreService, gas uint64) StoreContext {
 	return &storeContext{
-		cosmosCtx:    ctx,
-		storeService: storeService,
-		gas:          gas,
-		chargeGas:    true,
+		cosmosCtx:       ctx,
+		evmStoreService: evmStoreService,
+		storeService:    storeService,
+		gas:             gas,
+		chargeGas:       true,
 	}
 }
 
-func NewGasFreeStoreContext(ctx sdk.Context, storeService cstore.KVStoreService) StoreContext {
+func NewGasFreeStoreContext(ctx sdk.Context, evmStoreService, storeService cstore.KVStoreService) StoreContext {
 	return &storeContext{
-		cosmosCtx:    ctx,
-		storeService: storeService,
-		chargeGas:    false,
+		cosmosCtx:       ctx,
+		evmStoreService: evmStoreService,
+		storeService:    storeService,
+		chargeGas:       false,
 	}
 }
 

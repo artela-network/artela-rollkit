@@ -22,7 +22,7 @@ type stateStore struct {
 func NewStateStore(ctx *types.AspectStoreContext) store.AspectStateStore {
 	// for state Store, we have already charged gas in host api,
 	// so no need to charge it again in the Store
-	store := runtime.KVStoreAdapter(ctx.StoreService().OpenKVStore(ctx.CosmosContext()))
+	store := runtime.KVStoreAdapter(ctx.EVMStoreService().OpenKVStore(ctx.CosmosContext()))
 
 	return &stateStore{
 		BaseStore: NewBaseStore(NewNoOpGasMeter(ctx), store),

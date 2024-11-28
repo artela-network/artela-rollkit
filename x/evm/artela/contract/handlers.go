@@ -46,7 +46,8 @@ type HandlerContext struct {
 	evm        *vm.EVM
 	abi        *abi.Method
 
-	storeService cstore.KVStoreService
+	storeService       cstore.KVStoreService
+	aspectStoreService cstore.KVStoreService
 
 	rawInput  []byte
 	nonce     uint64
@@ -979,14 +980,14 @@ func mustGetAspectContext(ctx sdk.Context) *types.AspectRuntimeContext {
 
 func buildAspectStoreCtx(ctx *HandlerContext, aspectID common.Address, gas uint64) *aspectmoduletypes.AspectStoreContext {
 	return &aspectmoduletypes.AspectStoreContext{
-		StoreContext: aspectmoduletypes.NewStoreContext(ctx.cosmosCtx, ctx.storeService, gas),
+		StoreContext: aspectmoduletypes.NewStoreContext(ctx.cosmosCtx, ctx.storeService, ctx.aspectStoreService, gas),
 		AspectID:     aspectID,
 	}
 }
 
 func buildAccountStoreCtx(ctx *HandlerContext, account common.Address, gas uint64) *aspectmoduletypes.AccountStoreContext {
 	return &aspectmoduletypes.AccountStoreContext{
-		StoreContext: aspectmoduletypes.NewStoreContext(ctx.cosmosCtx, ctx.storeService, gas),
+		StoreContext: aspectmoduletypes.NewStoreContext(ctx.cosmosCtx, ctx.storeService, ctx.aspectStoreService, gas),
 		Account:      account,
 	}
 }

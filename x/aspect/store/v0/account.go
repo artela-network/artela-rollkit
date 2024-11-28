@@ -35,7 +35,7 @@ func NewAccountStore(ctx *types.AccountStoreContext) store.AccountStore {
 		meter = NewNoOpGasMeter(ctx)
 	}
 
-	store := runtime.KVStoreAdapter(ctx.StoreService().OpenKVStore(ctx.CosmosContext()))
+	store := runtime.KVStoreAdapter(ctx.EVMStoreService().OpenKVStore(ctx.CosmosContext()))
 
 	return &accountStore{
 		BaseStore: NewBaseStore(meter, store),

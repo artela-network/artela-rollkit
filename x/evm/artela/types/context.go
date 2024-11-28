@@ -30,7 +30,10 @@ const (
 	AspectModuleName = "aspect"
 )
 
-var cachedStoreService cstore.KVStoreService
+var (
+	cachedStoreService       cstore.KVStoreService
+	cachedAspectStoreService cstore.KVStoreService
+)
 
 type GetLastBlockHeight func() int64
 
@@ -56,12 +59,13 @@ type GetLastBlockHeight func() int64
 type AspectRuntimeContext struct {
 	baseCtx context.Context
 
-	ethTxContext    *EthTxContext
-	aspectContext   *AspectContext
-	ethBlockContext *EthBlockContext
-	aspectState     *AspectState
-	cosmosCtx       *cosmos.Context
-	storeService    cstore.KVStoreService
+	ethTxContext       *EthTxContext
+	aspectContext      *AspectContext
+	ethBlockContext    *EthBlockContext
+	aspectState        *AspectState
+	cosmosCtx          *cosmos.Context
+	storeService       cstore.KVStoreService
+	aspectStoreService cstore.KVStoreService
 
 	logger     log.Logger
 	jitManager *inherent.Manager
@@ -69,15 +73,18 @@ type AspectRuntimeContext struct {
 
 func NewAspectRuntimeContext() *AspectRuntimeContext {
 	return &AspectRuntimeContext{
-		aspectContext: NewAspectContext(),
-		storeService:  cachedStoreService,
-		logger:        log.NewNopLogger(),
+		aspectContext:      NewAspectContext(),
+		storeService:       cachedStoreService,
+		aspectStoreService: cachedAspectStoreService,
+		logger:             log.NewNopLogger(),
 	}
 }
 
-func (c *AspectRuntimeContext) Init(storeService cstore.KVStoreService) {
+func (c *AspectRuntimeContext) Init(storeService, aspectStoreService cstore.KVStoreService) {
 	cachedStoreService = storeService
+	cachedAspectStoreService = aspectStoreService
 	c.storeService = storeService
+	c.aspectStoreService = aspectStoreService
 }
 
 func (c *AspectRuntimeContext) WithCosmosContext(newTxCtx cosmos.Context) {
@@ -156,7 +163,7 @@ func (c *AspectRuntimeContext) CreateStateObject() {
 
 func (c *AspectRuntimeContext) GetAspectProperty(ctx *artelatypes.RunnerContext, version uint64, key string) []byte {
 	metaStore, _, err := store.GetAspectMetaStore(&types.AspectStoreContext{
-		StoreContext: types.NewGasFreeStoreContext(*c.cosmosCtx, cachedStoreService),
+		StoreContext: types.NewGasFreeStoreContext(*c.cosmosCtx, cachedStoreService, cachedAspectStoreService),
 		AspectID:     ctx.AspectId,
 	})
 	if err != nil {
@@ -456,7 +463,7 @@ func (k *AspectState) newStoreFromCache(aspectID common.Address) store.AspectSta
 	if !ok {
 		var err error
 		s, err = store.GetAspectStateStore(&types.AspectStoreContext{
-			StoreContext: types.NewGasFreeStoreContext(k.ctx, cachedStoreService),
+			StoreContext: types.NewGasFreeStoreContext(k.ctx, cachedStoreService, cachedAspectStoreService),
 			AspectID:     aspectID,
 		})
 		if err != nil {

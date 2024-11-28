@@ -45,6 +45,7 @@ type (
 		bankKeeper            types.BankKeeper
 		stakingKeeper         types.StakingKeeper
 		feeKeeper             types.FeeKeeper
+		aspectKeeper          types.AspectKeeper
 		subSpace              types.ParamSubspace
 		blockGetter           types.BlockGetter
 		logger                log.Logger
@@ -84,6 +85,7 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
 	feeKeeper types.FeeKeeper,
+	aspectKeeper types.AspectKeeper,
 	blockGetter types.BlockGetter,
 	chainIDGetter types.ChainIDGetter,
 	logger log.Logger,
@@ -99,10 +101,10 @@ func NewKeeper(
 	}
 
 	// init aspect
-	aspect := provider.NewArtelaProvider(storeService, artvmtype.GetLastBlockHeight(blockGetter))
+	aspect := provider.NewArtelaProvider(storeService, aspectKeeper.GetStoreService(), artvmtype.GetLastBlockHeight(blockGetter))
 	// new Aspect Runtime Context
 	aspectRuntimeContext := artvmtype.NewAspectRuntimeContext()
-	aspectRuntimeContext.Init(storeService)
+	aspectRuntimeContext.Init(storeService, aspectKeeper.GetStoreService())
 
 	// pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	k := Keeper{

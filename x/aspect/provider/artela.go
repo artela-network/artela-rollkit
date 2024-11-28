@@ -19,16 +19,18 @@ var _ asptypes.AspectProvider = (*ArtelaProvider)(nil)
 type ArtelaProvider struct {
 	getBlockHeight types.GetLastBlockHeight
 
-	storeService cstore.KVStoreService
+	evmStoreService cstore.KVStoreService
+	storeService    cstore.KVStoreService
 }
 
 func NewArtelaProvider(
-	storeService cstore.KVStoreService,
+	evmStoreService, storeService cstore.KVStoreService,
 	getBlockHeight types.GetLastBlockHeight,
 ) *ArtelaProvider {
 	return &ArtelaProvider{
-		storeService:   storeService,
-		getBlockHeight: getBlockHeight,
+		evmStoreService: evmStoreService,
+		storeService:    storeService,
+		getBlockHeight:  getBlockHeight,
 	}
 }
 
@@ -114,14 +116,14 @@ func (j *ArtelaProvider) getCodes(ctx context.Context, address common.Address, p
 
 func (j *ArtelaProvider) buildAspectStoreCtx(ctx *types.AspectRuntimeContext, aspectID common.Address) *aspectmoduletypes.AspectStoreContext {
 	return &aspectmoduletypes.AspectStoreContext{
-		StoreContext: aspectmoduletypes.NewGasFreeStoreContext(ctx.CosmosContext(), j.storeService),
+		StoreContext: aspectmoduletypes.NewGasFreeStoreContext(ctx.CosmosContext(), j.evmStoreService, j.storeService),
 		AspectID:     aspectID,
 	}
 }
 
 func (j *ArtelaProvider) buildAccountStoreCtx(ctx *types.AspectRuntimeContext, account common.Address) *aspectmoduletypes.AccountStoreContext {
 	return &aspectmoduletypes.AccountStoreContext{
-		StoreContext: aspectmoduletypes.NewGasFreeStoreContext(ctx.CosmosContext(), j.storeService),
+		StoreContext: aspectmoduletypes.NewGasFreeStoreContext(ctx.CosmosContext(), j.evmStoreService, j.storeService),
 		Account:      account,
 	}
 }

@@ -51,3 +51,7 @@ func (k Keeper) GetAuthority() string {
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+func (k Keeper) GetStoreService() store.KVStoreService {
+	return k.storeService
+}

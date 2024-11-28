@@ -115,6 +115,7 @@ func NewKeeper(
 		bankKeeper:            bankKeeper,
 		stakingKeeper:         stakingKeeper,
 		feeKeeper:             feeKeeper,
+		aspectKeeper:          aspectKeeper,
 		storeService:          storeService,
 		transientStoreService: transientStoreService,
 		tracer:                "1",

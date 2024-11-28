@@ -35,11 +35,12 @@ func NewAspectNativeContract(
 	logger log.Logger,
 ) *AspectNativeContract {
 	return &AspectNativeContract{
-		storeService: storeService,
-		evm:          evm,
-		evmState:     evmState,
-		logger:       logger,
-		handlers:     make(map[string]Handler),
+		storeService:       storeService,
+		aspectStoreService: aspectStoreService,
+		evm:                evm,
+		evmState:           evmState,
+		logger:             logger,
+		handlers:           make(map[string]Handler),
 	}
 }
 

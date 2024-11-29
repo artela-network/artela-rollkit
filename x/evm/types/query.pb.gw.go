@@ -1423,7 +1423,7 @@ var (
 
 	pattern_Query_BaseFee_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"artela", "evm", "base_fee"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetSender_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"artela", "evm", "v1", "get_sender"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GetSender_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"artela", "evm", "get_sender"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_DenomByAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"artela", "evm", "v1", "denom_by_address", "address"}, "", runtime.AssumeColonVerbOpt(false)))
 

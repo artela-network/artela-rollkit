@@ -5,7 +5,7 @@ import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "artela/aspect/params.proto";
 
-option go_package = "github.com/artela-network/artela/x/aspect/types";
+option go_package = "github.com/artela-network/artela-rollkit/x/aspect/types";
 
 // GenesisState defines the aspect module's genesis state.
 message GenesisState {

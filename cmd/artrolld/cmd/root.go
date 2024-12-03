@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/artela-network/artela-rollkit/app"
+	artelakeyring "github.com/artela-network/artela-rollkit/ethereum/crypto/keyring"
 	evmmoduletypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -161,6 +162,7 @@ func ProvideClientContext(
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(app.DefaultNodeHome).
+		WithKeyringOptions(artelakeyring.Option()).
 		WithViper(app.Name) // env variable prefix
 
 	// Read the config again to overwrite the default values with the values from the config file

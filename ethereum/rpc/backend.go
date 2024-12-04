@@ -181,7 +181,7 @@ func (b *BackendImpl) GetBalance(address common.Address, blockNrOrHash rpc.Block
 	return (*hexutil.Big)(val.BigInt()), nil
 }
 
-func (b *BackendImpl) ArtBlockByNumber(_ context.Context, number rpc.BlockNumber) (*rpctypes.Block, error) {
+func (b *BackendImpl) ArtBlockByNumber(ctx context.Context, number rpc.BlockNumber) (*rpctypes.Block, error) {
 	resBlock, err := b.CosmosBlockByNumber(number)
 	if err != nil || resBlock == nil {
 		return nil, fmt.Errorf("query block failed, block number %d, %w", number, err)
@@ -189,6 +189,13 @@ func (b *BackendImpl) ArtBlockByNumber(_ context.Context, number rpc.BlockNumber
 
 	blockRes, err := b.CosmosBlockResultByNumber(&resBlock.Block.Height)
 	if err != nil {
+		// TODO remove this. This is a workaround.
+		// see https://github.com/rollkit/rollkit/issues/1935
+		// https://github.com/artela-network/artela-rollkit/issues/9#issuecomment-2513769394
+		if number == rpc.LatestBlockNumber && resBlock.Block.Height > 1 {
+			// try to fetch previous block
+			return b.ArtBlockByNumber(ctx, rpc.BlockNumber(resBlock.Block.Height-1))
+		}
 		return nil, fmt.Errorf("block result not found for height %d", resBlock.Block.Height)
 	}
 
@@ -212,7 +219,7 @@ func (b *BackendImpl) BlockByHash(_ context.Context, hash common.Hash) (*rpctype
 func (b *BackendImpl) ChainConfig() *params.ChainConfig {
 	cfg, err := b.chainConfig()
 	if err != nil {
-		return nil
+		panic(err)
 	}
 	return cfg
 }
@@ -233,12 +240,13 @@ func (b *BackendImpl) chainConfig() (*params.ChainConfig, error) {
 		return nil, err
 	}
 
-	currentHeader, err := b.CurrentHeader()
+	blockNum, err := b.BlockNumber()
 	if err != nil {
+		b.logger.Info("get BlockNumber failed", err)
 		return nil, err
 	}
 
-	return params.Params.ChainConfig.EthereumConfig(currentHeader.Number.Int64(), b.chainID), nil
+	return params.Params.ChainConfig.EthereumConfig(int64(blockNum), b.chainID), nil
 }
 
 func (b *BackendImpl) ChainDb() ethdb.Database {

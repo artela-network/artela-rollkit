@@ -49,6 +49,8 @@ type (
 		DoCall(args TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash) (*evmtypes.MsgEthereumTxResponse, error)
 		EstimateGas(ctx context.Context, args TransactionArgs, blockNrOrHash *rpc.BlockNumberOrHash) (hexutil.Uint64, error)
 
+		BlockNumber() (hexutil.Uint64, error)
+		BlockTimeByNumber(blockNum int64) (uint64, error)
 		HeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error)
 		HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error)
 		HeaderByNumberOrHash(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) (*types.Header, error)

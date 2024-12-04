@@ -655,12 +655,17 @@ func SubmitTransaction(ctx context.Context, logger log.Logger, b rpctypes.Trancs
 		return tx.Hash(), nil
 	}
 
-	head, err := b.CurrentHeader()
+	blockNum, err := b.BlockNumber()
 	if err != nil {
 		return common.Hash{}, err
 	}
 
-	signer := types.MakeSigner(b.ChainConfig(), head.Number, head.Time)
+	blockTime, err := b.BlockTimeByNumber(int64(blockNum))
+	if err != nil {
+		return common.Hash{}, err
+	}
+
+	signer := types.MakeSigner(b.ChainConfig(), big.NewInt(int64(blockNum)), blockTime)
 	from, err := types.Sender(signer, tx)
 	if err != nil {
 		return common.Hash{}, err

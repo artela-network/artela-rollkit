@@ -7,6 +7,7 @@ import (
 	"github.com/artela-network/artela-rollkit/testutil/nullify"
 	evm "github.com/artela-network/artela-rollkit/x/evm/module"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
 	"github.com/stretchr/testify/require"
 )
@@ -19,8 +20,9 @@ func TestGenesis(t *testing.T) {
 	}
 
 	k, ctx := keepertest.EvmKeeper(t)
-	evm.InitGenesis(ctx, k, genesisState)
-	got := evm.ExportGenesis(ctx, k)
+	ak := authkeeper.AccountKeeper{}
+	evm.InitGenesis(ctx, k, ak, genesisState)
+	got := evm.ExportGenesis(ctx, k, ak)
 	require.NotNil(t, got)
 
 	nullify.Fill(&genesisState)

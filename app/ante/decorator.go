@@ -34,6 +34,7 @@ type AnteDecorators struct {
 	// StakingKeeper          vestingtypes.StakingKeeper
 	FeeKeeper              interfaces.FeeKeeper
 	EvmKeeper              interfaces.EVMKeeper
+	AspectKeeper           interfaces.AspectKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
 	SignModeHandler        *txs.HandlerMap
@@ -64,6 +65,9 @@ func (options AnteDecorators) Validate() error {
 	}
 	if options.EvmKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
+	}
+	if options.AspectKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "aspect keeper is required for AnteHandler")
 	}
 	if options.SigGasConsumer == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")

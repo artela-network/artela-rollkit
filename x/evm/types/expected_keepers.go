@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/core/address"
+	cstore "cosmossdk.io/core/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authmodule "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingmodule "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -60,4 +61,8 @@ type FeeKeeper interface {
 type ParamSubspace interface {
 	Get(context.Context, []byte, interface{})
 	Set(context.Context, []byte, interface{})
+}
+
+type AspectKeeper interface {
+	GetStoreService() cstore.KVStoreService
 }

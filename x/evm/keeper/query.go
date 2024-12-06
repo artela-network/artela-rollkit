@@ -17,10 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	ethereum "github.com/ethereum/go-ethereum/core/types"
+	ethparams "github.com/ethereum/go-ethereum/params"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	ethparams "github.com/ethereum/go-ethereum/params"
 
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
 	artelatypes "github.com/artela-network/artela-rollkit/x/evm/artela/types"
@@ -653,6 +652,22 @@ func (k Keeper) GetSender(c context.Context, in *types.MsgEthereumTx) (*types.Ge
 		return nil, err
 	}
 	return &types.GetSenderResponse{Sender: sender.String()}, nil
+}
+
+func (k Keeper) AddressByDenom(c context.Context, req *types.AddressByDenomRequest) (*types.AddressByDenomResponse, error) {
+	ctx := cosmos.UnwrapSDKContext(c)
+	addrs, err := k.erc20Contract.GetProxyByDenom(ctx, req.Denom)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.AddressByDenomResponse{Address: addrs}, nil
+}
+
+func (k Keeper) DenomByAddress(c context.Context, req *types.DenomByAddressRequest) (*types.DenomByAddressResponse, error) {
+	ctx := cosmos.UnwrapSDKContext(c)
+	denom := k.erc20Contract.GetDenomByProxy(ctx, common.HexToAddress(req.Address))
+	return &types.DenomByAddressResponse{Denom: denom}, nil
 }
 
 // getChainID parse chainID from current context if not provided

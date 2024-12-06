@@ -24,13 +24,13 @@ import (
 	ethereum "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 
-	artelatypes "github.com/artela-network/artela-rollkit/x/evm/artela/types"
-
 	"github.com/artela-network/artela-rollkit/common"
 	artela "github.com/artela-network/artela-rollkit/ethereum/types"
+	"github.com/artela-network/artela-rollkit/x/aspect/provider"
 	"github.com/artela-network/artela-rollkit/x/evm/artela/api"
-	"github.com/artela-network/artela-rollkit/x/evm/artela/provider"
+	artelatypes "github.com/artela-network/artela-rollkit/x/evm/artela/types"
 	artvmtype "github.com/artela-network/artela-rollkit/x/evm/artela/types"
+	"github.com/artela-network/artela-rollkit/x/evm/precompile/erc20"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
 	"github.com/artela-network/artela-rollkit/x/evm/txs"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
@@ -45,6 +45,7 @@ type (
 		bankKeeper            types.BankKeeper
 		stakingKeeper         types.StakingKeeper
 		feeKeeper             types.FeeKeeper
+		aspectKeeper          types.AspectKeeper
 		subSpace              types.ParamSubspace
 		blockGetter           types.BlockGetter
 		logger                log.Logger
@@ -73,6 +74,8 @@ type (
 
 		// cache of aspect sig
 		VerifySigCache *sync.Map
+
+		erc20Contract *erc20.ERC20Contract
 	}
 )
 
@@ -84,11 +87,11 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
 	feeKeeper types.FeeKeeper,
+	aspectKeeper types.AspectKeeper,
 	blockGetter types.BlockGetter,
 	chainIDGetter types.ChainIDGetter,
 	logger log.Logger,
 	authority string,
-
 ) Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
@@ -100,10 +103,10 @@ func NewKeeper(
 	}
 
 	// init aspect
-	aspect := provider.NewArtelaProvider(storeService, artvmtype.GetLastBlockHeight(blockGetter), logger)
+	aspect := provider.NewArtelaProvider(storeService, aspectKeeper.GetStoreService(), artvmtype.GetLastBlockHeight(blockGetter))
 	// new Aspect Runtime Context
 	aspectRuntimeContext := artvmtype.NewAspectRuntimeContext()
-	aspectRuntimeContext.Init(storeService)
+	aspectRuntimeContext.Init(storeService, aspectKeeper.GetStoreService())
 
 	// pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	k := Keeper{
@@ -114,6 +117,7 @@ func NewKeeper(
 		bankKeeper:            bankKeeper,
 		stakingKeeper:         stakingKeeper,
 		feeKeeper:             feeKeeper,
+		aspectKeeper:          aspectKeeper,
 		storeService:          storeService,
 		transientStoreService: transientStoreService,
 		tracer:                "1",
@@ -140,6 +144,8 @@ func NewKeeper(
 
 	aspcoretype.JITSenderAspectByContext = k.JITSenderAspectByContext
 	aspcoretype.IsCommit = k.IsCommit
+
+	k.erc20Contract = erc20.InitERC20Contract(k.logger, cdc, k.storeService, k.bankKeeper)
 	return k
 }
 
@@ -198,7 +204,7 @@ func (k Keeper) EmitBlockBloomEvent(ctx sdk.Context, bloom ethereum.Bloom) {
 	encodedBloom := base64.StdEncoding.EncodeToString(bloom.Bytes())
 
 	sprintf := fmt.Sprintf("emit block event %d bloom %s header %d, ", len(bloom.Bytes()), encodedBloom, ctx.BlockHeight())
-	k.Logger().Info(sprintf)
+	k.Logger().Debug(sprintf)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

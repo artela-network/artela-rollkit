@@ -16,6 +16,7 @@ import (
 
 	"github.com/artela-network/aspect-core/djpm"
 
+	"github.com/artela-network/artela-rollkit/x/evm/states"
 	"github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
@@ -88,7 +89,15 @@ func (k *Keeper) DeductTxCostsFromUserBalance(
 	// fetch sender account
 	signerAcc, err := authante.GetSignerAcc(ctx, k.accountKeeper, from.Bytes())
 	if err != nil {
-		return errorsmod.Wrapf(err, "account not found for sender %s", from)
+		// if no gas fee, create an empty account for the address
+		if !fees.Empty() {
+			return errorsmod.Wrapf(err, "account not found for sender %s", from)
+		}
+		err := k.SetAccount(ctx, from, *states.NewEmptyAccount())
+		if err != nil {
+			return errorsmod.Wrapf(err, "account not found for sender %s and failed to create %v", from, err)
+		}
+		signerAcc, _ = authante.GetSignerAcc(ctx, k.accountKeeper, from.Bytes())
 	}
 
 	// deduct the full gas cost from the user balance

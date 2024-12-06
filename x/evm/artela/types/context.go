@@ -2,27 +2,26 @@ package types
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"sync"
 	"time"
 
-	"cosmossdk.io/core/store"
+	cstore "cosmossdk.io/core/store"
 	"cosmossdk.io/log"
-	"cosmossdk.io/store/prefix"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	cosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/artela-network/artela-evm/vm"
+	"github.com/artela-network/artela-rollkit/x/aspect/store"
+	"github.com/artela-network/artela-rollkit/x/aspect/types"
+	statedb "github.com/artela-network/artela-rollkit/x/evm/states"
 	inherent "github.com/artela-network/aspect-core/chaincoreext/jit_inherent"
 	artelatypes "github.com/artela-network/aspect-core/types"
-
-	statedb "github.com/artela-network/artela-rollkit/x/evm/states"
-	evmtypes "github.com/artela-network/artela-rollkit/x/evm/types"
 )
 
 const (
@@ -31,7 +30,10 @@ const (
 	AspectModuleName = "aspect"
 )
 
-var cachedStoreService store.KVStoreService
+var (
+	cachedStoreService       cstore.KVStoreService
+	cachedAspectStoreService cstore.KVStoreService
+)
 
 type GetLastBlockHeight func() int64
 
@@ -57,12 +59,13 @@ type GetLastBlockHeight func() int64
 type AspectRuntimeContext struct {
 	baseCtx context.Context
 
-	ethTxContext    *EthTxContext
-	aspectContext   *AspectContext
-	ethBlockContext *EthBlockContext
-	aspectState     *AspectState
-	cosmosCtx       *cosmos.Context
-	storeService    store.KVStoreService
+	ethTxContext       *EthTxContext
+	aspectContext      *AspectContext
+	ethBlockContext    *EthBlockContext
+	aspectState        *AspectState
+	cosmosCtx          *cosmos.Context
+	storeService       cstore.KVStoreService
+	aspectStoreService cstore.KVStoreService
 
 	logger     log.Logger
 	jitManager *inherent.Manager
@@ -70,15 +73,18 @@ type AspectRuntimeContext struct {
 
 func NewAspectRuntimeContext() *AspectRuntimeContext {
 	return &AspectRuntimeContext{
-		aspectContext: NewAspectContext(),
-		storeService:  cachedStoreService,
-		logger:        log.NewNopLogger(),
+		aspectContext:      NewAspectContext(),
+		storeService:       cachedStoreService,
+		aspectStoreService: cachedAspectStoreService,
+		logger:             log.NewNopLogger(),
 	}
 }
 
-func (c *AspectRuntimeContext) Init(storeService store.KVStoreService) {
+func (c *AspectRuntimeContext) Init(storeService, aspectStoreService cstore.KVStoreService) {
 	cachedStoreService = storeService
+	cachedAspectStoreService = aspectStoreService
 	c.storeService = storeService
+	c.aspectStoreService = aspectStoreService
 }
 
 func (c *AspectRuntimeContext) WithCosmosContext(newTxCtx cosmos.Context) {
@@ -104,7 +110,7 @@ func (c *AspectRuntimeContext) CosmosContext() cosmos.Context {
 	return *c.cosmosCtx
 }
 
-func (c *AspectRuntimeContext) StoreService() store.KVStoreService {
+func (c *AspectRuntimeContext) StoreService() cstore.KVStoreService {
 	return c.storeService
 }
 
@@ -152,24 +158,31 @@ func (c *AspectRuntimeContext) ClearBlockContext() {
 }
 
 func (c *AspectRuntimeContext) CreateStateObject() {
-	c.aspectState = NewAspectState(*c.cosmosCtx, c.storeService, AspectStateKeyPrefix, c.logger)
+	c.aspectState = NewAspectState(*c.cosmosCtx, c.logger)
+}
+
+func (c *AspectRuntimeContext) GetAspectProperty(ctx *artelatypes.RunnerContext, version uint64, key string) []byte {
+	metaStore, _, err := store.GetAspectMetaStore(&types.AspectStoreContext{
+		StoreContext: types.NewGasFreeStoreContext(*c.cosmosCtx, cachedStoreService, cachedAspectStoreService),
+		AspectID:     ctx.AspectId,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	data, err := metaStore.GetProperty(version, key)
+	if err != nil {
+		panic(err)
+	}
+	return data
 }
 
 func (c *AspectRuntimeContext) GetAspectState(ctx *artelatypes.RunnerContext, key string) []byte {
-	stateKey := AspectArrayKey(
-		ctx.AspectId.Bytes(),
-		[]byte(key),
-	)
-	return c.aspectState.Get(stateKey)
+	return c.aspectState.Get(ctx.AspectId, key)
 }
 
 func (c *AspectRuntimeContext) SetAspectState(ctx *artelatypes.RunnerContext, key string, value []byte) {
-	stateKey := AspectArrayKey(
-		ctx.AspectId.Bytes(),
-		[]byte(key),
-	)
-
-	c.aspectState.Set(stateKey, value)
+	c.aspectState.Set(ctx.AspectId, key, value)
 }
 
 func (c *AspectRuntimeContext) Destroy() {
@@ -400,44 +413,65 @@ func (c *AspectContext) Clear() {
 }
 
 type AspectState struct {
-	state        prefix.Store
-	storeService store.KVStoreService
-
 	logger log.Logger
+
+	ctx        cosmos.Context
+	storeCache map[common.Address]store.AspectStateStore
 }
 
-func NewAspectState(ctx cosmos.Context, storeService store.KVStoreService, fixKey string, logger log.Logger) *AspectState {
-	cacheStore := prefix.NewStore(runtime.KVStoreAdapter(storeService.OpenKVStore(ctx)), evmtypes.KeyPrefix(fixKey))
+func NewAspectState(ctx cosmos.Context, logger log.Logger) *AspectState {
 	stateObj := &AspectState{
-		state:        cacheStore,
-		storeService: storeService,
-		logger:       logger,
+		ctx:    ctx,
+		logger: logger,
+
+		storeCache: make(map[common.Address]store.AspectStateStore),
 	}
 	return stateObj
 }
 
-func (k *AspectState) Set(key, value []byte) {
+func (k *AspectState) Set(aspectID common.Address, key string, value []byte) {
+	s := k.newStoreFromCache(aspectID)
+
 	action := "updated"
 	if len(value) == 0 {
-		k.state.Delete(key)
 		action = "deleted"
-	} else {
-		k.state.Set(key, value)
 	}
 
+	s.SetState([]byte(key), value)
+
 	if value == nil {
-		k.logger.Debug("setState:", "action", action, "key", string(key), "value", "nil")
+		k.logger.Debug("setState:", "action", action, "key", key, "value", "nil")
 	} else {
-		k.logger.Debug("setState:", "action", action, "key", string(key), "value", string(value))
+		k.logger.Debug("setState:", "action", action, "key", key, "value", hex.EncodeToString(value))
 	}
 }
 
-func (k *AspectState) Get(key []byte) []byte {
-	val := k.state.Get(key)
+func (k *AspectState) Get(aspectID common.Address, key string) []byte {
+	s := k.newStoreFromCache(aspectID)
+	val := s.GetState([]byte(key))
+
 	if val == nil {
-		k.logger.Debug("getState:", "key", string(key), "value", "nil")
+		k.logger.Debug("getState:", "key", key, "value", "nil")
 	} else {
-		k.logger.Debug("getState:", "key", string(key), "value", string(val))
+		k.logger.Debug("getState:", "key", key, "value", string(val))
 	}
 	return val
+}
+
+func (k *AspectState) newStoreFromCache(aspectID common.Address) store.AspectStateStore {
+	s, ok := k.storeCache[aspectID]
+	if !ok {
+		var err error
+		s, err = store.GetAspectStateStore(&types.AspectStoreContext{
+			StoreContext: types.NewGasFreeStoreContext(k.ctx, cachedStoreService, cachedAspectStoreService),
+			AspectID:     aspectID,
+		})
+		if err != nil {
+			k.logger.Error("failed to get aspect state store", "err", err)
+			panic(err)
+		}
+		k.storeCache[aspectID] = s
+	}
+
+	return s
 }

@@ -13,7 +13,7 @@ import (
 	inherent "github.com/artela-network/aspect-core/chaincoreext/jit_inherent"
 
 	"github.com/artela-network/artela-rollkit/app/interfaces"
-	"github.com/artela-network/artela-rollkit/x/evm/artela/provider"
+	"github.com/artela-network/artela-rollkit/x/aspect/provider"
 	"github.com/artela-network/artela-rollkit/x/evm/artela/types"
 	"github.com/artela-network/artela-rollkit/x/evm/states"
 	evmmodule "github.com/artela-network/artela-rollkit/x/evm/types"

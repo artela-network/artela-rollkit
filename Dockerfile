@@ -14,7 +14,7 @@ ENV GOPATH /usr/local/go
 ENV PATH $GOPATH/bin:$PATH
 
 # Install Rollkit dependencies
-RUN (curl -sSL https://rollkit.dev/install.sh | sh -s v0.13.5) && go clean -modcache
+RUN (curl -sSL https://rollkit.dev/install.sh | sh -s v0.14.1) && go clean -modcache
 
 # Install Artela rollup
 RUN mkdir -p /app/artela-rollkit

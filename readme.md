@@ -84,4 +84,4 @@ Learn more about Artela in <https://artela.network/>
 ## License
 Copyright © Artela Network, Inc. All rights reserved.
 
-Licensed under the [Apache v2](LICENSE) License.
+Licensed under the [Apache v2](https://www.apache.org/licenses/LICENSE-2.0) License.

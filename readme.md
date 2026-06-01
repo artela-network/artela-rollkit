@@ -24,7 +24,7 @@ As the first rollup kit equipped with Aspects, Artela network aims to **maximize
   <img src="https://docs.artela.network/assets/images/2-a4045260ad64e65eaa2af9fc50c06a4a.png" width="500" height="500">
 </p>
 
-* **Base Layer:** Provide basic functions, including consensus engine, networking, EVM environments for the smart contract execution, and WASM environments for the Aspects execution. This layer is supported by Celestia's Rollkit.
+* **Base Layer:** Provide basic functions, including consensus engine, networking, EVM environments for the smart contract execution, and WASM environments for the Aspects execution. This layer is supported by Celestia's Rollkit
 
 * **Extension Layer:** Provide the Aspect SDK. Developers are able to build Aspects. Aspects have access to all APIs within the base layer and can be freely combined with smart contracts and other Aspects. Aspect is securely isolated from Base Layer, ensuring that it has no impact on the security or availability of the core network.
 

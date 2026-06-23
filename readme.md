@@ -33,30 +33,30 @@ As the first rollup kit equipped with Aspects, Artela network aims to **maximize
 
 ## Build the source
 
-1). Set Up Your Go Development Environment<br />
+1) Set Up Your Go Development Environment<br />
 
 Make sure you have set up your [Go](https://go.dev/) development environment.
 
-2). Install ignite-cli<br />
+2) Install ignite-cli<br />
 
 ```sh
 curl https://get.ignite.com/cli@v28.4.0! | bash
 ```
 
-3). Install rollkit-cli <br />
+3) Install rollkit-cli <br />
 
 ```sh
 curl -sSL https://rollkit.dev/install.sh | sh -s v0.13.6
 ```
 
-4). Download the Source Code<br />
+4) Download the Source Code<br />
 Obtain the project source code using the following method:
 
 ```
 git clone https://github.com/artela-network/artela-rollkit.git
 ```
 
-5). Compile<br />
+5) Compile<br />
 Compile the source code and generate the executable using the Go compiler:
 
 ```
